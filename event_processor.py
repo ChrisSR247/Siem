@@ -128,7 +128,7 @@ class EventProcessor:
             log_coloreado("INFO", f"  IA: {resultado_ia.get('resumen', '')[:100]}")
             # IA ok solo si trae resumen real
             resumen_ia = resultado_ia.get("resumen", "").strip()
-            ia_ok = bool(resumen_ia and "sin analisis" not in resumen_ia.lower() and "error de ia" not in resumen_ia.lower())
+            ia_ok = bool(resumen_ia and resumen_ia.lower() not in ("", "ninguno"))
 
         # Guardar siempre en DB
         if self._db_ok:

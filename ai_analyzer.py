@@ -7,7 +7,7 @@ from config import (
     AI_PROVIDERS,
     PROMPTS_PATH,
 )
-from utils import cargar_json
+from utils import cargar_json, log_coloreado
 
 logger = logging.getLogger(__name__)
 
@@ -46,6 +46,8 @@ def crear_prompt(tipo: str, evento_normalizado: dict, resultado_reglas: dict) ->
 def consultar_nvidia(prompt: str, modelo_idx: int = 0) -> dict:
     from openai import OpenAI
 
+    errores = []
+
     for provider in AI_PROVIDERS:
         modelo = provider["model"]
         nombre = provider["name"]
@@ -79,18 +81,35 @@ def consultar_nvidia(prompt: str, modelo_idx: int = 0) -> dict:
                 resultado["texto_raw"] = texto
                 return resultado
 
-            logger.warning("[%s] %s devolvio JSON invalido, intentando siguiente...", nombre, modelo)
+            errores.append(f"{nombre}:{modelo} -> respuesta sin JSON valido")
 
         except Exception as e:
-            logger.warning("[%s] Error con %s: %s", nombre, modelo, str(e)[:80])
+            msg = str(e)[:60]
+            # Clasificar error
+            if "429" in msg or "rate" in msg.lower():
+                errores.append(f"{nombre}:{modelo} -> rate limit")
+            elif "404" in msg:
+                errores.append(f"{nombre}:{modelo} -> modelo no disponible")
+            elif "timed out" in msg.lower() or "timeout" in msg.lower():
+                errores.append(f"{nombre}:{modelo} -> timeout")
+            elif "529" in msg or "overloaded" in msg.lower():
+                errores.append(f"{nombre}:{modelo} -> sobrecargado")
+            elif "410" in msg or "gone" in msg.lower():
+                errores.append(f"{nombre}:{modelo} -> eliminado")
+            else:
+                errores.append(f"{nombre}:{modelo} -> {msg[:40]}")
             continue
 
-    logger.error("Failover agotado. Todos los modelos fallaron.")
+    # Todos fallaron: resumen limpio
+    causas = list(set(e.split(" -> ")[1] for e in errores if " -> " in e))
+    causa_str = ", ".join(causas) if causas else "error desconocido"
+    log_coloreado("WARNING", f"  IA: Todos los modelos fallaron ({causa_str})")
+
     return {
         "modelo": "NINGUNO",
-        "resumen": "Error de IA - todos los modelos fallaron",
+        "resumen": "",
         "severidad": "DESCONOCIDO",
-        "recomendacion": "Revisar configuracion de API NVIDIA",
+        "recomendacion": f"IA no disponible: {causa_str}. Revisar manualmente.",
         "tecnicas_mitre": [],
         "falso_positivo": False,
         "texto_raw": "",

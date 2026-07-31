@@ -255,6 +255,9 @@
     "ssh": {"map": "Wazuh", "key": "5712"},
     "hunting": {"riesgo": "BAJO", "_ataque": "Regla de Caza de Amenazas", "recomendacion": "Regla de caza de amenazas, no es un ataque real."},
     "telegram api": {"riesgo": "BAJO", "_ataque": "Dominio Telegram Legitimo", "recomendacion": "Dominio Telegram legitimo, no es amenaza."},
-    "telegram": {"riesgo": "BAJO", "_ataque": "Trafico Telegram", "recomendacion": "Trafico Telegram normal."}
+    "telegram": {"riesgo": "BAJO", "_ataque": "Trafico Telegram", "recomendacion": "Trafico Telegram normal."},
+    "unable to match response": {"riesgo": "BAJO", "_ataque": "HTTP Response No Correlacionado", "recomendacion": "Evento benigno de Suricata, respuesta HTTP sin request asociado."},
+    "file hosting service": {"riesgo": "BAJO", "_ataque": "Servicio de Archivos Legitimo", "recomendacion": "Dominio de hosting de archivos legitimo (pypi, github, etc)."},
+    "pythonhosted": {"riesgo": "BAJO", "_ataque": "Servicio de Archivos Legitimo", "recomendacion": "Trafico a pythonhosted.org es normal en servidores Python."}
   }
 }
