@@ -42,17 +42,32 @@ class EventTracker:
         return triggered
 
 
+class AlertRateLimiter:
+    def __init__(self, cooldown_seconds: int = 300):
+        self.cooldown = cooldown_seconds
+        self.last_alert = {}
+
+    def puede_enviar(self, key: str) -> bool:
+        now = time.time()
+        last = self.last_alert.get(key, 0)
+        if now - last >= self.cooldown:
+            self.last_alert[key] = now
+            return True
+        return False
+
+
 class EventProcessor:
     def __init__(self):
         self.rule_engine = RuleEngine()
         self.tracker = EventTracker(window_seconds=60, threshold=3)
+        self.rate_limiter = AlertRateLimiter(cooldown_seconds=300)
         self._db_ok = False
 
     def iniciar(self):
         log_coloreado("INICIO", "Inicializando base de datos...")
         inicializar_db()
         self._db_ok = True
-        log_coloreado("INICIO", "Estado de procesamiento de eventos listo.")
+        log_coloreado("INICIO", "Procesador de eventos listo.")
 
     def procesar_por_lote(self) -> int:
         contador = 0
@@ -69,7 +84,6 @@ class EventProcessor:
         fuente = raw.get("fuente", "")
         evento = raw.get("evento", {})
 
-        # 1. Normalizar
         if fuente == "WAZUH":
             normalizado = normalizar_evento_wazuh(evento)
             normalizado["id_registro"] = normalizado.get("id_regla")
@@ -78,25 +92,26 @@ class EventProcessor:
         else:
             return
 
-        log_coloreado("DEBUG", f"Nuevo evento: {fuente} | {normalizado.get('descripcion', '')[:80]}")
+        desc = normalizado.get("descripcion", "")
+        log_coloreado("DEBUG", f"Evento: {fuente} | {desc[:80]}")
 
-        # 2. Reglas locales
+        # Reglas locales
         resultado_reglas = self.rule_engine.analizar(normalizado)
-        riesgo = resultado_reglas.get("riesgo", "MEDIO")
-        log_coloreado("INFO", f"  Riesgo local: {riesgo} | {resultado_reglas.get('ataque')} | MITRE: {resultado_reglas.get('mitre')}")
+        riesgo = resultado_reglas.get("riesgo", "BAJO")
+        log_coloreado("INFO", f"  Riesgo: {riesgo} | {resultado_reglas.get('ataque')}")
 
-        # 3. Verificar patrones repetidos
+        # Patrones: solo subir riesgo si ya era MEDIO o ALTO
         es_patron = self.tracker.track(normalizado, resultado_reglas)
-        if es_patron:
+        if es_patron and riesgo in ("MEDIO", "ALTO"):
             resultado_reglas["riesgo"] = "ALTO"
-            resultado_reglas["ataque"] = f"{resultado_reglas.get('ataque')} (Patron: >=3 eventos)"
+            resultado_reglas["ataque"] = f"{resultado_reglas.get('ataque')} (+3 repetidos)"
 
         riesgo_final = resultado_reglas.get("riesgo", riesgo)
 
-        # 4. IA si riesgo-lo amerita
+        # IA solo si ALTO o CRITICO
         resultado_ia = {
             "modelo": "N/A",
-            "resumen": f"No analizado por IA (riesgo: {riesgo_final})",
+            "resumen": "",
             "severidad": riesgo_final,
             "recomendacion": resultado_reglas.get("recomendacion", ""),
             "tecnicas_mitre": [],
@@ -104,17 +119,20 @@ class EventProcessor:
         }
 
         if self._debe_notificar(riesgo_final):
-            log_coloreado("INFO", "  Consultando IA NVIDIA...")
+            log_coloreado("INFO", "  -> Consultando IA...")
             resultado_ia = analizar_evento(normalizado, resultado_reglas)
-            log_coloreado("INFO", f"  IA respondio: {resultado_ia.get('resumen', '')[:100]}")
+            log_coloreado("INFO", f"  IA: {resultado_ia.get('resumen', '')[:100]}")
 
-        # 5. Guardar en DB
+        # Guardar siempre en DB
         if self._db_ok:
             guardar_evento(normalizado, resultado_reglas, resultado_ia)
 
-        # 6. Enviar Telegram
+        # Telegram con rate limit: 1 alerta igual cada 5 min max
         if self._debe_notificar(riesgo_final):
-            enviar_alerta(normalizado, resultado_reglas, resultado_ia)
+ip = normalizado.get("ip_origen", normalizado.get("agente_ip", normalizado.get("raw_log", "")))
+            alert_key = f"{resultado_reglas.get('ataque','')}|{ip}"
+            if self.rate_limiter.puede_enviar(alert_key):
+                enviar_alerta(normalizado, resultado_reglas, resultado_ia)
 
     def _debe_notificar(self, riesgo: str) -> bool:
         return RISK_LEVELS.get(riesgo.upper(), 0) >= RISK_LEVELS.get(ALERT_MIN_RISK.upper(), 2)

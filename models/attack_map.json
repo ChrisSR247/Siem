@@ -251,6 +251,7 @@
     "excessive retransmissions": {"riesgo": "BAJO", "recomendacion": "Problema de red, no de seguridad."},
     "stun binding": {"riesgo": "BAJO", "recomendacion": "Trafico STUN/NAT normal."},
     "stun": {"riesgo": "BAJO", "recomendacion": "Trafico STUN/NAT normal."},
+    "missed the password": {"map": "Wazuh", "key": "5712"},
     "ssh": {"map": "Wazuh", "key": "5712"}
   }
 }
