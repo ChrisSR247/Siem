@@ -69,7 +69,8 @@ class RuleEngine:
         return resultado
 
     def _buscar_regla(self, id_regla: str, descripcion: str, fuente: str) -> dict:
-        mapa_fuente = self.attack_map.get(fuente, {})
+        # Normalizar fuente: buscar key exacta, luego title-case
+        mapa_fuente = self.attack_map.get(fuente) or self.attack_map.get(fuente.capitalize(), {})
         keywords_map = self.attack_map.get("keywords", {})
 
         # 1. Buscar por ID exacto en la seccion de la fuente

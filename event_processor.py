@@ -111,7 +111,7 @@ class EventProcessor:
 
         riesgo_final = resultado_reglas.get("riesgo", riesgo)
 
-# IA solo si ALTO o CRITICO
+        # IA solo si ALTO o CRITICO
         resultado_ia = {
             "modelo": "N/A",
             "resumen": "",
