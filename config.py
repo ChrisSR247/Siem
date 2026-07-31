@@ -1,33 +1,40 @@
 import os
 from pathlib import Path
 
+from dotenv import load_dotenv
 
 BASE_DIR = Path(__file__).resolve().parent
+load_dotenv(BASE_DIR / ".env")
 
 
 # ============================================================
 # API NVIDIA NIM
 # ============================================================
-NVIDIA_API_KEY = os.getenv("NVIDIA_API_KEY", "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")
+NVIDIA_API_KEY = os.getenv("NVIDIA_API_KEY", "")
 NVIDIA_BASE_URL = "https://integrate.api.nvidia.com/v1"
 
-# Lista de modelos con failover automático (se prueban en orden)
-NVIDIA_MODELS = [
-    "deepseek-ai/deepseek-v4-flash",
-    "deepseek-ai/deepseek-v4-pro",
-    "nvidia/llama-3.3-nemotron-super-49b-v1",
-    "meta/llama-3.3-70b-instruct",
-]
+# ============================================================
+# API Groq
+# ============================================================
+GROQ_API_KEY = os.getenv("GROQ_API_KEY", "")
+GROQ_BASE_URL = "https://api.groq.com/openai/v1"
 
-NVIDIA_TIMEOUT = int(os.getenv("NVIDIA_TIMEOUT", "10"))
-NVIDIA_MAX_TOKENS = 512
-NVIDIA_TEMPERATURE = 0.2
+# ============================================================
+# Proveedores y modelos con failover
+# ============================================================
+AI_PROVIDERS = [
+    {"name": "nvidia", "base_url": NVIDIA_BASE_URL, "api_key": NVIDIA_API_KEY, "model": "nvidia/llama-3.3-nemotron-super-49b-v1", "timeout": 10},
+    {"name": "groq",   "base_url": GROQ_BASE_URL,   "api_key": GROQ_API_KEY,   "model": "llama-3.3-70b-versatile",          "timeout": 8},
+    {"name": "nvidia", "base_url": NVIDIA_BASE_URL, "api_key": NVIDIA_API_KEY, "model": "meta/llama-3.3-70b-instruct", "timeout": 10},
+    {"name": "nvidia", "base_url": NVIDIA_BASE_URL, "api_key": NVIDIA_API_KEY, "model": "deepseek-ai/deepseek-v4-flash", "timeout": 12, "deepseek": True},
+    {"name": "nvidia", "base_url": NVIDIA_BASE_URL, "api_key": NVIDIA_API_KEY, "model": "deepseek-ai/deepseek-v4-pro", "timeout": 12, "deepseek": True},
+]
 
 # ============================================================
 # Telegram
 # ============================================================
-TELEGRAM_TOKEN = os.getenv("TELEGRAM_TOKEN", "8702469745:AAGX7W_SDTM6mIbkVrEHodYXSZkA9AJw9HY")
-TELEGRAM_CHAT_ID = os.getenv("TELEGRAM_CHAT_ID", "1862795174")
+TELEGRAM_TOKEN = os.getenv("TELEGRAM_TOKEN", "")
+TELEGRAM_CHAT_ID = os.getenv("TELEGRAM_CHAT_ID", "")
 
 # ============================================================
 # Rutas
