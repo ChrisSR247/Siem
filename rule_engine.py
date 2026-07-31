@@ -65,18 +65,19 @@ class RuleEngine:
 
         # 2. Buscar por keyword mas larga primero (mas especifica)
         sorted_kw = sorted(keywords_map.items(), key=lambda x: -len(x[0]))
-        base = None
+        best = None
         for kw, info in sorted_kw:
             if kw in descripcion:
-                if isinstance(info, dict) and "map" in info:
+                if isinstance(info, dict) and "riesgo" in info:
+                    best = dict(info)
+                    break
+                if isinstance(info, dict) and "map" in info and best is None:
                     target_map = self.attack_map.get(info["map"], {})
                     if info["key"] in target_map:
-                        return target_map[info["key"]]
-                if isinstance(info, dict) and "riesgo" in info and base is None:
-                    base = dict(info)
+                        best = target_map[info["key"]]
 
-        if base:
-            return base
+        if best:
+            return best
 
         # 3. Default
         default_key = "DEFAULT_SURICATA" if "SURICAT" in fuente.upper() else "DEFAULT_WAZUH"
