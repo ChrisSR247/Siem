@@ -56,15 +56,19 @@ def consultar_nvidia(prompt: str, modelo_idx: int = 0) -> dict:
     for i in range(modelo_idx, len(NVIDIA_MODELS)):
         modelo = NVIDIA_MODELS[i]
         try:
+            t = NVIDIA_TIMEOUT
+            if "deepseek" in modelo:
+                t = 15
+
             cliente = OpenAI(
                 base_url=NVIDIA_BASE_URL,
                 api_key=NVIDIA_API_KEY,
-                timeout=NVIDIA_TIMEOUT,
+                timeout=t,
             )
 
             extra = {}
-            if "deepseek" in modelo:
-                extra["extra_body"] = {"chat_template_kwargs": {"thinking": True, "reasoning_effort": "high"}}
+            if "deepseek" in modelo and "pro" in modelo:
+                extra["extra_body"] = {"chat_template_kwargs": {"thinking": False}}
 
             response = cliente.chat.completions.create(
                 model=modelo,

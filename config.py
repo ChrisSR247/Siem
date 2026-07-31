@@ -19,8 +19,8 @@ NVIDIA_MODELS = [
     "meta/llama-3.3-70b-instruct",
 ]
 
-NVIDIA_TIMEOUT = int(os.getenv("NVIDIA_TIMEOUT", "30"))
-NVIDIA_MAX_TOKENS = 1024
+NVIDIA_TIMEOUT = int(os.getenv("NVIDIA_TIMEOUT", "10"))
+NVIDIA_MAX_TOKENS = 512
 NVIDIA_TEMPERATURE = 0.2
 
 # ============================================================
