@@ -62,8 +62,8 @@ def _formatear_mensaje(evento_normalizado: dict, resultado_reglas: dict, resulta
         f"  _\\\"{resultado_ia.get('resumen', 'No se pudo analizar con IA.')[:300]}\\\"_",
     ]
 
-    if fp_label:
-        lineas.append(f"  {fp_label}")
+    if fp_texto:
+        lineas.append(f"  {fp_texto}")
 
     lineas += [
         "",

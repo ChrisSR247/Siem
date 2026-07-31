@@ -74,5 +74,5 @@ class RuleEngine:
                         return target_map[info["key"]]
 
         # 3. Default
-        default_key = "DEFAULT_SURICATA" if fuente == "SURICATA" else "DEFAULT_WAZUH"
+        default_key = "DEFAULT_SURICATA" if "SURICAT" in fuente.upper() else "DEFAULT_WAZUH"
         return mapa_fuente.get(default_key, {})
