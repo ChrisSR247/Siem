@@ -1,0 +1,209 @@
+{
+  "5710": {
+    "ataque": "SSH Brute Force",
+    "riesgo": "ALTO",
+    "mitre": "T1110",
+    "prioridad": "Alta",
+    "owasp": null,
+    "cvss": 7.5,
+    "recomendacion": "Implementar fail2ban o bloquear IPs con múltiples intentos fallidos."
+  },
+  "5712": {
+    "ataque": "SSH Autenticacion Fallida",
+    "riesgo": "MEDIO",
+    "mitre": "T1110.001",
+    "prioridad": "Media",
+    "owasp": null,
+    "cvss": 5.0,
+    "recomendacion": "Monitorear intentos fallidos. Si son recurrentes, escalar a incidente."
+  },
+  "500": {
+    "ataque": "Login Fallido (Sistema)",
+    "riesgo": "MEDIO",
+    "mitre": "T1110",
+    "prioridad": "Media",
+    "owasp": null,
+    "cvss": 5.0,
+    "recomendacion": "Verificar si es error tipografico o ataque. Monitorear frecuencia."
+  },
+  "5501": {
+    "ataque": "Modificacion de Archivos del Sistema",
+    "riesgo": "ALTO",
+    "mitre": "T1565.001",
+    "prioridad": "Alta",
+    "owasp": null,
+    "cvss": 7.5,
+    "recomendacion": "Investigar origen del cambio. Restaurar backup si es malicioso."
+  },
+  "5503": {
+    "ataque": "Instalacion de Software No Autorizado",
+    "riesgo": "ALTO",
+    "mitre": "T1105",
+    "prioridad": "Alta",
+    "owasp": null,
+    "cvss": 7.0,
+    "recomendacion": "Verificar permisos de usuario. Bloquear ejecucion."
+  },
+  "5504": {
+    "ataque": "Escaneo Interno de Puertos",
+    "riesgo": "MEDIO",
+    "mitre": "T1046",
+    "prioridad": "Media",
+    "owasp": null,
+    "cvss": 5.0,
+    "recomendacion": "Identificar host origen. Si no es autorizado, aislar."
+  },
+  "200000": {
+    "ataque": "Suricata - Regla Generica",
+    "riesgo": "MEDIO",
+    "mitre": "T1595",
+    "prioridad": "Media",
+    "owasp": null,
+    "cvss": 5.0,
+    "recomendacion": "Revisar alerta Suricata. Investigar payload."
+  },
+  "2001219": {
+    "ataque": "Nmap Scan",
+    "riesgo": "MEDIO",
+    "mitre": "T1595",
+    "prioridad": "Media",
+    "owasp": null,
+    "cvss": 5.0,
+    "recomendacion": "Bloquear temporalmente la IP origen. Verificar si es escaneo activo."
+  },
+  "2012357": {
+    "ataque": "SQL Injection Intento",
+    "riesgo": "CRITICO",
+    "mitre": "T1190",
+    "prioridad": "Critica",
+    "owasp": "SQL Injection",
+    "cvss": 9.8,
+    "recomendacion": "Bloquear IP de inmediato. Revisar WAF. Verificar si fue exitosa."
+  },
+  "2012311": {
+    "ataque": "Malware Detectado",
+    "riesgo": "CRITICO",
+    "mitre": "T1204.002",
+    "prioridad": "Critica",
+    "owasp": null,
+    "cvss": 10.0,
+    "recomendacion": "Aislar el host inmediatamente. Iniciar forense."
+  },
+  "2010937": {
+    "ataque": "Web Attack - Path Traversal",
+    "riesgo": "ALTO",
+    "mitre": "T1083",
+    "prioridad": "Alta",
+    "owasp": "Path Traversal",
+    "cvss": 8.0,
+    "recomendacion": "Bloquear IP. Revisar aplicacion web y sanitizar rutas."
+  },
+  "2012645": {
+    "ataque": "Escaneo Puertos Externo",
+    "riesgo": "MEDIO",
+    "mitre": "T1046",
+    "prioridad": "Media",
+    "owasp": null,
+    "cvss": 5.0,
+    "recomendacion": "Bloquear temporalmente. Monitorear si escala a ataques."
+  },
+  "2012708": {
+    "ataque": "Conexion a IP Maliciosa",
+    "riesgo": "ALTO",
+    "mitre": "T1571",
+    "prioridad": "Alta",
+    "owasp": null,
+    "cvss": 7.5,
+    "recomendacion": "Bloquear salida a la IP. Verificar si hay C2."
+  },
+  "2019504": {
+    "ataque": "Exploit Ejecucion Remota",
+    "riesgo": "CRITICO",
+    "mitre": "T1203",
+    "prioridad": "Critica",
+    "owasp": null,
+    "cvss": 10.0,
+    "recomendacion": "Aislar inmediatamente. Contencion activa. Forense urgente."
+  },
+  "2018109": {
+    "ataque": "Reconocimiento Web",
+    "riesgo": "MEDIO",
+    "mitre": "T1592",
+    "prioridad": "Media",
+    "owasp": null,
+    "cvss": 4.0,
+    "recomendacion": "Monitorear. Si es repetitivo, bloquear IP."
+  },
+  "1001": {
+    "ataque": "Regla Personalizada - Wazuh",
+    "riesgo": "MEDIO",
+    "mitre": "T1595",
+    "prioridad": "Media",
+    "owasp": null,
+    "cvss": 5.0,
+    "recomendacion": "Investigar manualmente."
+  },
+  "1002": {
+    "ataque": "Rootkit Detectado",
+    "riesgo": "CRITICO",
+    "mitre": "T1014",
+    "prioridad": "Critica",
+    "owasp": null,
+    "cvss": 10.0,
+    "recomendacion": "Sistema comprometido. Aislar y reiniciar en modo seguro. Forense urgente."
+  },
+  "1003": {
+    "ataque": "Proceso Sospechoso",
+    "riesgo": "ALTO",
+    "mitre": "T1059",
+    "prioridad": "Alta",
+    "owasp": null,
+    "cvss": 7.0,
+    "recomendacion": "Normalizar el proceso. Si es desconocido, matar y analizar."
+  },
+  "1006": {
+    "ataque": "Cuenta Bloqueada (posible fuerza bruta)",
+    "riesgo": "ALTO",
+    "mitre": "T1110",
+    "prioridad": "Alta",
+    "owasp": null,
+    "cvss": 7.0,
+    "recomendacion": "Verificar usuario. Desbloquear si es legitimo. Notificar al dueño."
+  },
+  "1007": {
+    "ataque": "Firewall - Bloqueo Recurrente",
+    "riesgo": "MEDIO",
+    "mitre": "T1562.004",
+    "prioridad": "Media",
+    "owasp": null,
+    "cvss": 5.0,
+    "recomendacion": "Verificar reglas de firewall. Monitorear patron."
+  },
+  "602": {
+    "ataque": "Wazuh - Agente Desconectado",
+    "riesgo": "ALTO",
+    "mitre": "T1562.001",
+    "prioridad": "Alta",
+    "owasp": null,
+    "cvss": 6.0,
+    "recomendacion": "Verificar conectividad del agente. Reiniciar servicio Wazuh."
+  },
+  "DEFAULT_SURICATA": {
+    "ataque": "Alerta Suricata",
+    "riesgo": "MEDIO",
+    "mitre": "T1595",
+    "prioridad": "Media",
+    "owasp": null,
+    "cvss": 5.0,
+    "recomendacion": "Revisar firma de Suricata. Contextualizar evento."
+  },
+  "DEFAULT_WAZUH": {
+    "ataque": "Alerta Wazuh",
+    "riesgo": "MEDIO",
+    "mitre": "T1595",
+    "prioridad": "Media",
+    "owasp": null,
+    "cvss": 5.0,
+    "recomendacion": "Revisar detalle del agente. Verificar regla especifica."
+  }
+}
