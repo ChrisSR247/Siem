@@ -11,6 +11,17 @@ from utils import setup_logging, log_coloreado
 
 logger = setup_logging()
 
+running = True
+
+
+def handle_exit(sig, frame):
+    global running
+    running = False
+    print("\n\033[93m[!] Deteniendo SIEM... (espere)\033[0m")
+
+signal.signal(signal.SIGINT, handle_exit)
+signal.signal(signal.SIGTERM, handle_exit)
+
 
 def banner():
     print("""
@@ -26,6 +37,9 @@ def banner():
 
 
 def main():
+    global running
+    running = True
+
     banner()
     logger.info("Iniciando SIEM Inteligente...")
 
@@ -35,32 +49,22 @@ def main():
     procesador = EventProcessor()
     procesador.iniciar()
 
-    running = True
+    logger.info("SIEM en ejecucion. Monitoreando logs cada %ds... (Ctrl+C para detener)", POLL_INTERVAL_SECONDS)
+    log_coloreado("INFO", "Monitoreando: Wazuh + Suricata")
 
-    def señal_handler(sig, frame):
-        nonlocal running
-        running = False
-        print("\n\033[93m[!] Deteniendo SIEM...\033[0m")
+    while running:
+        nvo = procesador.procesar_por_lote()
+        if nvo > 0:
+            logger.info("Procesados %d eventos nuevos.", nvo)
+        for _ in range(int(POLL_INTERVAL_SECONDS * 10)):
+            if not running:
+                break
+            time.sleep(0.1)
 
-    signal.signal(signal.SIGINT, señal_handler)
-    signal.signal(signal.SIGTERM, señal_handler)
-
-    logger.info("SIEM en ejecución. Monitoreando logs cada %ds... (Ctrl+C para detener)", POLL_INTERVAL_SECONDS)
-    log_coloreado("INFORME", f"Monitoreando:\n  - Wazuh\\n  - Suricata")
-
-    try:
-        while running:
-            nvo = procesador.procesar_por_lote()
-            if nvo > 0:
-                logger.info("Procesados %d eventos nuevos.", nvo)
-            time.sleep(POLL_INTERVAL_SECONDS)
-    except KeyboardInterrupt:
-        pass
-    finally:
-        logger.info("Generando estadisticas finales...")
-        path = generar_estadisticas_txt()
-        logger.info("Estadisticas guardadas en: %s", path)
-        logger.info("SIEM detenido.")
+    logger.info("Generando estadisticas finales...")
+    path = generar_estadisticas_txt()
+    logger.info("Estadisticas guardadas en: %s", path)
+    logger.info("SIEM detenido.")
 
 
 if __name__ == "__main__":
