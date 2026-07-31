@@ -223,7 +223,7 @@
     "authentication success": {"map": "Wazuh", "key": "5715"},
     "login session opened": {"map": "Wazuh", "key": "5715"},
     "login session closed": {"map": "Wazuh", "key": "5715"},
-    "sudo to root": {"map": "Wazuh", "key": "5900"},
+    "sudo to root": {"riesgo": "BAJO", "recomendacion": "Uso administrativo de sudo."},
     "promiscuous": {"map": "Wazuh", "key": "553"},
     "promisc": {"map": "Wazuh", "key": "553"},
     "rootcheck": {"map": "Wazuh", "key": "555"},

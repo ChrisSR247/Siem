@@ -59,7 +59,7 @@ SURICATA_CURSOR = LOG_DIR / ".suricata_cursor"
 # ============================================================
 # Umbrales de alerta
 # ============================================================
-ALERT_MIN_RISK = "MEDIO"  # Solo se envían alertas de nivel >= MEDIO por Telegram
+ALERT_MIN_RISK = "ALTO"  # Solo se envían alertas de nivel >= ALTO por Telegram
 RISK_LEVELS = {
     "BAJO": 1,
     "MEDIO": 2,
