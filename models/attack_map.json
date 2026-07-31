@@ -122,11 +122,11 @@
     },
     "DEFAULT_WAZUH": {
       "ataque": "Alerta Wazuh",
-      "riesgo": "MEDIO",
-      "mitre": "T1595",
-      "prioridad": "Media",
-      "cvss": 5.0,
-      "recomendacion": "Revisar detalle del agente. Verificar regla especifica."
+      "riesgo": "BAJO",
+      "mitre": "",
+      "prioridad": "Baja",
+      "cvss": 0,
+      "recomendacion": "Evento de host no clasificado como amenaza."
     }
   },
   "Suricata": {
@@ -206,11 +206,11 @@
     },
     "DEFAULT_SURICATA": {
       "ataque": "Alerta Suricata",
-      "riesgo": "MEDIO",
-      "mitre": "T1595",
-      "prioridad": "Media",
-      "cvss": 5.0,
-      "recomendacion": "Revisar firma de Suricata. Contextualizar evento."
+      "riesgo": "BAJO",
+      "mitre": "",
+      "prioridad": "Baja",
+      "cvss": 0,
+      "recomendacion": "Evento de red no clasificado como amenaza."
     }
   },
   "keywords": {
@@ -247,6 +247,10 @@
     "c2": {"map": "Suricata", "key": "2012708"},
     "command and control": {"map": "Suricata", "key": "2012708"},
     "invalid checksum": {"riesgo": "BAJO", "recomendacion": "Error de red benigno."},
+    "reassembly overlap": {"riesgo": "BAJO", "recomendacion": "Evento benigno de Suricata."},
+    "excessive retransmissions": {"riesgo": "BAJO", "recomendacion": "Problema de red, no de seguridad."},
+    "stun binding": {"riesgo": "BAJO", "recomendacion": "Trafico STUN/NAT normal."},
+    "stun": {"riesgo": "BAJO", "recomendacion": "Trafico STUN/NAT normal."},
     "ssh": {"map": "Wazuh", "key": "5712"}
   }
 }

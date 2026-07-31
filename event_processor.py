@@ -107,12 +107,14 @@ class EventProcessor:
             log_coloreado("INFO", "  Consultando IA NVIDIA...")
             resultado_ia = analizar_evento(normalizado, resultado_reglas)
             log_coloreado("INFO", f"  IA respondio: {resultado_ia.get('resumen', '')[:100]}")
-        else:
-            log_coloreado("INFO", f"  Riesgo {riesgo_final} < {ALERT_MIN_RISK}, se omite IA y Telegram.")
 
         # 5. Guardar en DB
         if self._db_ok:
             guardar_evento(normalizado, resultado_reglas, resultado_ia)
+
+        # 6. Enviar Telegram
+        if self._debe_notificar(riesgo_final):
+            enviar_alerta(normalizado, resultado_reglas, resultado_ia)
 
     def _debe_notificar(self, riesgo: str) -> bool:
         return RISK_LEVELS.get(riesgo.upper(), 0) >= RISK_LEVELS.get(ALERT_MIN_RISK.upper(), 2)

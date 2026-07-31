@@ -33,25 +33,32 @@ class RuleEngine:
             "recomendacion": regla.get("recomendacion", "Investigar manualmente."),
         }
 
-        # Ajustar riesgo por nivel Wazuh
+        # Ajustar riesgo por nivel critico del evento (solo subir, nunca bajar)
+        niveles_riesgo = {"BAJO": 0, "MEDIO": 1, "ALTO": 2, "CRITICO": 3}
+
         if fuente == "WAZUH":
             nivel = int(evento_normalizado.get("nivel_original", 0))
             if nivel >= 12:
-                resultado["riesgo"] = "CRITICO"
-                resultado["prioridad"] = "Critica"
+                nuevo = "CRITICO"
             elif nivel >= 10:
-                resultado["riesgo"] = "ALTO"
-                resultado["prioridad"] = "Alta"
+                nuevo = "ALTO"
+            else:
+                nuevo = resultado["riesgo"]
+            if niveles_riesgo.get(nuevo, 0) > niveles_riesgo.get(resultado["riesgo"], 0):
+                resultado["riesgo"] = nuevo
+                resultado["prioridad"] = "Critica" if nuevo == "CRITICO" else "Alta"
 
-        # Ajustar riesgo por severidad Suricata
         if fuente == "SURICATA":
             severity = int(evento_normalizado.get("nivel_original", 0))
             if severity >= 4:
-                resultado["riesgo"] = "CRITICO"
-                resultado["prioridad"] = "Critica"
+                nuevo = "CRITICO"
             elif severity >= 3:
-                resultado["riesgo"] = "ALTO"
-                resultado["prioridad"] = "Alta"
+                nuevo = "ALTO"
+            else:
+                nuevo = resultado["riesgo"]
+            if niveles_riesgo.get(nuevo, 0) > niveles_riesgo.get(resultado["riesgo"], 0):
+                resultado["riesgo"] = nuevo
+                resultado["prioridad"] = "Critica" if nuevo == "CRITICO" else "Alta"
 
         return resultado
 
