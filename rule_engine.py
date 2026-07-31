@@ -33,7 +33,13 @@ class RuleEngine:
             "recomendacion": regla.get("recomendacion", "Investigar manualmente."),
         }
 
-        # Ajustar riesgo por nivel critico del evento (solo subir, nunca bajar)
+        es_from_keyword = regla.get("__from_keyword", False)
+
+        # Si la keyword ya definio un riesgo explicito, respetarlo sin override de severidad
+        if es_from_keyword:
+            return resultado
+
+        # Ajustar riesgo por nivel critico del evento (solo para defaults, no para keywords explicitas)
         niveles_riesgo = {"BAJO": 0, "MEDIO": 1, "ALTO": 2, "CRITICO": 3}
 
         if fuente == "WAZUH":
@@ -77,6 +83,7 @@ class RuleEngine:
             if kw in descripcion:
                 if isinstance(info, dict) and "riesgo" in info:
                     best = dict(info)
+                    best["__from_keyword"] = True
                     break
                 if isinstance(info, dict) and "map" in info and best is None:
                     target_map = self.attack_map.get(info["map"], {})
