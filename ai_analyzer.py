@@ -4,12 +4,7 @@ from pathlib import Path
 from typing import Optional
 
 from config import (
-    NVIDIA_API_KEY,
-    NVIDIA_BASE_URL,
-    NVIDIA_MODELS,
-    NVIDIA_TIMEOUT,
-    NVIDIA_MAX_TOKENS,
-    NVIDIA_TEMPERATURE,
+    AI_PROVIDERS,
     PROMPTS_PATH,
 )
 from utils import cargar_json
@@ -17,12 +12,13 @@ from utils import cargar_json
 logger = logging.getLogger(__name__)
 
 
-def _crear_cliente():
+def _crear_cliente(provider: dict):
     try:
         from openai import OpenAI
         return OpenAI(
-            base_url=NVIDIA_BASE_URL,
-            api_key=NVIDIA_API_KEY,
+            base_url=provider["base_url"],
+            api_key=provider["api_key"],
+            timeout=provider["timeout"],
         )
     except ImportError:
         logger.error("openai no instalado. pip install openai")
@@ -48,27 +44,21 @@ def crear_prompt(tipo: str, evento_normalizado: dict, resultado_reglas: dict) ->
 
 
 def consultar_nvidia(prompt: str, modelo_idx: int = 0) -> dict:
-    response = None
-    ultimo_error = None
-
     from openai import OpenAI
 
-    for i in range(modelo_idx, len(NVIDIA_MODELS)):
-        modelo = NVIDIA_MODELS[i]
+    for provider in AI_PROVIDERS:
+        modelo = provider["model"]
+        nombre = provider["name"]
         try:
-            t = NVIDIA_TIMEOUT
-            if "deepseek" in modelo:
-                t = 15
+            extra = {}
+            if provider.get("deepseek"):
+                extra["extra_body"] = {"chat_template_kwargs": {"thinking": False}}
 
             cliente = OpenAI(
-                base_url=NVIDIA_BASE_URL,
-                api_key=NVIDIA_API_KEY,
-                timeout=t,
+                base_url=provider["base_url"],
+                api_key=provider["api_key"],
+                timeout=provider["timeout"],
             )
-
-            extra = {}
-            if "deepseek" in modelo and "pro" in modelo:
-                extra["extra_body"] = {"chat_template_kwargs": {"thinking": False}}
 
             response = cliente.chat.completions.create(
                 model=modelo,
@@ -76,31 +66,26 @@ def consultar_nvidia(prompt: str, modelo_idx: int = 0) -> dict:
                     {"role": "system", "content": "Eres un analista de ciberseguridad. Responde solo en JSON valido."},
                     {"role": "user", "content": prompt},
                 ],
-                temperature=NVIDIA_TEMPERATURE,
-                max_tokens=NVIDIA_MAX_TOKENS,
+                temperature=0.2,
+                max_tokens=512,
                 **extra,
             )
-
-            reasoning = getattr(response.choices[0].message, "reasoning", None) or getattr(response.choices[0].message, "reasoning_content", None)
-            if reasoning and logger.isEnabledFor(logging.DEBUG):
-                logger.debug("DeepSeek reasoning: %s", reasoning[:200])
 
             texto = response.choices[0].message.content.strip()
             resultado = _parsear_respuesta(texto, modelo)
 
             if resultado:
-                resultado["modelo"] = modelo
+                resultado["modelo"] = f"{nombre}:{modelo}"
                 resultado["texto_raw"] = texto
                 return resultado
 
-            logger.warning("Modelo %s devolvio JSON invalido, intentando siguiente...", modelo)
+            logger.warning("[%s] %s devolvio JSON invalido, intentando siguiente...", nombre, modelo)
 
         except Exception as e:
-            ultimo_error = str(e)
-            logger.warning("Error con modelo CLAVE %s: %s", modelo, e)
+            logger.warning("[%s] Error con %s: %s", nombre, modelo, str(e)[:80])
             continue
 
-    logger.error("Failover agotado. Todos los modelos fallaron.", "")
+    logger.error("Failover agotado. Todos los modelos fallaron.")
     return {
         "modelo": "NINGUNO",
         "resumen": "Error de IA - todos los modelos fallaron",
