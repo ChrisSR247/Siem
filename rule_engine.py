@@ -63,15 +63,20 @@ class RuleEngine:
         if id_regla in mapa_fuente:
             return mapa_fuente[id_regla]
 
-        # 2. Buscar por palabra clave en descripcion
-        for kw, info in keywords_map.items():
+        # 2. Buscar por keyword mas larga primero (mas especifica)
+        sorted_kw = sorted(keywords_map.items(), key=lambda x: -len(x[0]))
+        base = None
+        for kw, info in sorted_kw:
             if kw in descripcion:
-                if isinstance(info, dict) and "riesgo" in info:
-                    return info
                 if isinstance(info, dict) and "map" in info:
                     target_map = self.attack_map.get(info["map"], {})
                     if info["key"] in target_map:
                         return target_map[info["key"]]
+                if isinstance(info, dict) and "riesgo" in info and base is None:
+                    base = dict(info)
+
+        if base:
+            return base
 
         # 3. Default
         default_key = "DEFAULT_SURICATA" if "SURICAT" in fuente.upper() else "DEFAULT_WAZUH"

@@ -105,7 +105,7 @@ class EventProcessor:
 
         if self._debe_notificar(riesgo_final):
             log_coloreado("INFO", "  Consultando IA NVIDIA...")
-            resultado_ia = analizar_evento(normalizado, resultados_reglas)
+            resultado_ia = analizar_evento(normalizado, resultado_reglas)
             log_coloreado("INFO", f"  IA respondio: {resultado_ia.get('resumen', '')[:100]}")
         else:
             log_coloreado("INFO", f"  Riesgo {riesgo_final} < {ALERT_MIN_RISK}, se omite IA y Telegram.")
