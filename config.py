@@ -23,11 +23,20 @@ GROQ_BASE_URL = "https://api.groq.com/openai/v1"
 # Proveedores y modelos con failover
 # ============================================================
 AI_PROVIDERS = [
+    # Groq (mas rapido primero)
     {"name": "groq",   "base_url": GROQ_BASE_URL,   "api_key": GROQ_API_KEY,   "model": "llama-3.3-70b-versatile",          "timeout": 8},
-    {"name": "nvidia", "base_url": NVIDIA_BASE_URL, "api_key": NVIDIA_API_KEY, "model": "nvidia/llama-3.3-nemotron-super-49b-v1", "timeout": 10},
-    {"name": "nvidia", "base_url": NVIDIA_BASE_URL, "api_key": NVIDIA_API_KEY, "model": "meta/llama-3.3-70b-instruct", "timeout": 10},
-    {"name": "nvidia", "base_url": NVIDIA_BASE_URL, "api_key": NVIDIA_API_KEY, "model": "deepseek-ai/deepseek-v4-flash", "timeout": 12, "deepseek": True},
-    {"name": "nvidia", "base_url": NVIDIA_BASE_URL, "api_key": NVIDIA_API_KEY, "model": "deepseek-ai/deepseek-v4-pro", "timeout": 12, "deepseek": True},
+
+    # NVIDIA NIM - ordenados del mas ligero/rapido al mas pesado
+    {"name": "nvidia", "base_url": NVIDIA_BASE_URL, "api_key": NVIDIA_API_KEY, "model": "inference/laguna-xs-2.1",             "timeout": 10},
+    {"name": "nvidia", "base_url": NVIDIA_BASE_URL, "api_key": NVIDIA_API_KEY, "model": "z-ai/inkling",                       "timeout": 10},
+    {"name": "nvidia", "base_url": NVIDIA_BASE_URL, "api_key": NVIDIA_API_KEY, "model": "google/gemma-4-31b-it",            "timeout": 10},
+    {"name": "nvidia", "base_url": NVIDIA_BASE_URL, "api_key": NVIDIA_API_KEY, "model": "mistralai/mistral-medium-3.5",      "timeout": 10},
+    {"name": "nvidia", "base_url": NVIDIA_BASE_URL, "api_key": NVIDIA_API_KEY, "model": "deepseek-ai/deepseek-v4-flash",     "timeout": 12, "deepseek": True},
+    {"name": "nvidia", "base_url": NVIDIA_BASE_URL, "api_key": NVIDIA_API_KEY, "model": "deepseek-ai/deepseek-v4-pro",       "timeout": 12, "deepseek": True},
+    {"name": "nvidia", "base_url": NVIDIA_BASE_URL, "api_key": NVIDIA_API_KEY, "model": "qwen/qwen3.5-122b-a10b",           "timeout": 15},
+    {"name": "nvidia", "base_url": NVIDIA_BASE_URL, "api_key": NVIDIA_API_KEY, "model": "z-ai/glm-5.2",                      "timeout": 15},
+    {"name": "nvidia", "base_url": NVIDIA_BASE_URL, "api_key": NVIDIA_API_KEY, "model": "minimax/minimax-m3",                "timeout": 15},
+    {"name": "nvidia", "base_url": NVIDIA_BASE_URL, "api_key": NVIDIA_API_KEY, "model": "nvidia/nemotron-3-ultra-550b-a55b","timeout": 20},
 ]
 
 # ============================================================
