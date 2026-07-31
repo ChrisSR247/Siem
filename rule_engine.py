@@ -24,7 +24,7 @@ class RuleEngine:
         regla = self._buscar_regla(id_regla, descripcion, fuente)
 
         resultado = {
-            "ataque": regla.get("ataque", "Evento Desconocido"),
+            "ataque": regla.get("ataque", regla.get("_ataque", "Evento Desconocido")),
             "riesgo": regla.get("riesgo", "MEDIO"),
             "mitre": regla.get("mitre", ""),
             "owasp": regla.get("owasp"),
