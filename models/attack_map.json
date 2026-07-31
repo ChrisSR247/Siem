@@ -252,6 +252,9 @@
     "stun binding": {"riesgo": "BAJO", "recomendacion": "Trafico STUN/NAT normal."},
     "stun": {"riesgo": "BAJO", "recomendacion": "Trafico STUN/NAT normal."},
     "missed the password": {"map": "Wazuh", "key": "5712"},
-    "ssh": {"map": "Wazuh", "key": "5712"}
+    "ssh": {"map": "Wazuh", "key": "5712"},
+    "hunting": {"riesgo": "BAJO", "recomendacion": "Regla de caza de amenazas, no es un ataque real."},
+    "telegram api": {"riesgo": "BAJO", "recomendacion": "Dominio Telegram legitimo, no es amenaza."},
+    "telegram": {"riesgo": "BAJO", "recomendacion": "Trafico Telegram normal."}
   }
 }

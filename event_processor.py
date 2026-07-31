@@ -93,12 +93,15 @@ class EventProcessor:
             return
 
         desc = normalizado.get("descripcion", "")
-        log_coloreado("DEBUG", f"Evento: {fuente} | {desc[:80]}")
 
         # Reglas locales
         resultado_reglas = self.rule_engine.analizar(normalizado)
         riesgo = resultado_reglas.get("riesgo", "BAJO")
-        log_coloreado("INFO", f"  Riesgo: {riesgo} | {resultado_reglas.get('ataque')}")
+
+        # Solo loggear eventos MEDIO o superior
+        if RISK_LEVELS.get(riesgo, 0) >= RISK_LEVELS.get("MEDIO", 2):
+            log_coloreado("DEBUG", f"Evento: {fuente} | {desc[:80]}")
+            log_coloreado("INFO", f"  Riesgo: {riesgo} | {resultado_reglas.get('ataque')}")
 
         # Patrones: solo subir riesgo si ya era MEDIO o ALTO
         es_patron = self.tracker.track(normalizado, resultado_reglas)
