@@ -15,26 +15,66 @@ def _formatear_mensaje(evento_normalizado: dict, resultado_reglas: dict, resulta
     if not ip_origen:
         ip_origen = evento_normalizado.get("raw_log", "N/A")
 
+    timestamp = evento_normalizado.get("timestamp", "N/A")
+    agente = evento_normalizado.get("agente", "")
+    categoria = evento_normalizado.get("categoria", "")
+
+    # Recomendacion: priorizar IA, luego reglas
+    rec = resultado_ia.get("recomendacion", "") or resultado_reglas.get("recomendacion", "")
+    tecnicas_ia = resultado_ia.get("tecnicas_mitre", [])
+    mitre_final = resultado_reglas.get("mitre", "")
+    if tecnicas_ia:
+        mitre_final += " (IA: " + ", ".join(tecnicas_ia) + ")"
+
+    severidad_ia = resultado_ia.get("severidad", riesgo)
+    falso_positivo = resultado_ia.get("falso_positivo", False)
+    fp_texto = "\\u2704 Posible falso positivo" if falso_positivo else ""
+
     lineas = [
-        f"\\U0001F6B0 SIEM Inteligente {emoji}",
-        "",
-        f"*Nivel:*          {riesgo}",
-        f"*Fuente:*         {evento_normalizado.get('fuente', 'N/A')}",
-        f"*Ataque:*         {resultado_reglas.get('ataque', 'N/A')}",
-        f"*Descripcion:*    {evento_normalizado.get('descripcion', 'N/A')[:100]}",
-        f"*IP origen:*      {ip_origen}",
-        f"*IP destino:*     {ip_destino}",
-        f"*MITRE:*          {resultado_reglas.get('mitre', 'N/A')}",
-        f"*OWASP:*          {resultado_reglas.get('owasp') or 'N/A'}",
-        f"*Prioridad:*      {resultado_reglas.get('prioridad', 'N/A')}",
-        f"*CVSS:*           {resultado_reglas.get('cvss', 'N/A')}",
-        f"*Recomendacion:*  Resultado: {resultado_reglas.get('recomendacion', resultado_ia.get('recomendacion', ''))}",
-        f"*Modelo IA:*      {resultado_ia.get('modelo', 'N/A')}",
+        f"\\U0001F6B0 *SIEM Inteligente* {emoji}",
+        f"\\U0001F4C5 *Fecha:*         {timestamp}",
+        f"\\U0001F4CA *Nivel:*         {riesgo} (IA: {severidad_ia})",
+        f"\\U0001F4E1 *Fuente:*        {evento_normalizado.get('fuente', 'N/A')}",
     ]
 
-    resumen_ia = resultado_ia.get("resumen", "")
-    if resumen_ia:
-        lineas.append(f"\n*Resumen IA:* {resumen_ia[:250]}")
+    if agente:
+        lineas.append(f"\\U0001F5A5 *Agente:*        {agente}")
+    if categoria:
+        lineas.append(f"\\U0001F4E6 *Categoria:*     {categoria}")
+
+    lineas += [
+        f"\\U0001F3AF *Ataque:*        {resultado_reglas.get('ataque', 'N/A')}",
+        f"\\U0001F4DD *Descripcion:*   {evento_normalizado.get('descripcion', 'N/A')[:150]}",
+        f"\\U0001F310 *IP origen:*     {ip_origen}",
+        f"\\U0001F310 *IP destino:*    {ip_destino}",
+        f"\\U0001F4A5 *MITRE ATT&CK:*  {mitre_final}",
+    ]
+
+    owasp = resultado_reglas.get("owasp")
+    if owasp:
+        lineas.append(f"\\U0001F939 *OWASP:*          {owasp}")
+
+    lineas += [
+        f"\\U0001F52D *CVSS estimado:* {resultado_reglas.get('cvss', 'N/A')}",
+        f"\\U0001F4E2 *Prioridad:*      {resultado_reglas.get('prioridad', 'N/A')}",
+        "",
+        f"\\U0001F9EA *Analisis IA:*",
+        f"  _\\\"{resultado_ia.get('resumen', 'No se pudo analizar con IA.')[:300]}\\\"_",
+    ]
+
+    if fp_label:
+        lineas.append(f"  {fp_label}")
+
+    lineas += [
+        "",
+        f"\\U0001F513 *Recomendacion:*",
+        f"  1\\. {rec}",
+        f"  2\\. Verificar logs completos en el SIEM",
+        f"  3\\. Actualizar base de datos de amenazas",
+        "",
+        f"\\U0001F91U *Modelo IA:*      {resultado_ia.get('modelo', 'No disponible')}",
+        f"\\U0001F4E0 *SIEM Inteligente :: Wazuh |> Suricata |> NVIDIA AI*",
+    ]
 
     return "\n".join(lineas)
 

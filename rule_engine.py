@@ -56,28 +56,23 @@ class RuleEngine:
         return resultado
 
     def _buscar_regla(self, id_regla: str, descripcion: str, fuente: str) -> dict:
-        if id_regla in self.attack_map:
-            return self.attack_map[id_regla]
+        mapa_fuente = self.attack_map.get(fuente, {})
+        keywords_map = self.attack_map.get("keywords", {})
 
-        # Búsqueda por palabra clave en descripción
-        keywords = {
-            "brute force": "5710",
-            "fuerza bruta": "5710",
-            "nmap": "2001219",
-            "sql injection": "2012357",
-            "sql inject": "2012357",
-            "malware": "2012311",
-            "virus": "2012311",
-            "rootkit": "1002",
-            "exploit": "2019504",
-            "path traversal": "2010937",
-            "port scan": "2012645",
-            "escaneo": "2012645",
-        }
+        # 1. Buscar por ID exacto en la seccion de la fuente
+        if id_regla in mapa_fuente:
+            return mapa_fuente[id_regla]
 
-        for kw, rule_id in keywords.items():
-            if kw in descripcion and rule_id in self.attack_map:
-                return self.attack_map[rule_id]
+        # 2. Buscar por palabra clave en descripcion
+        for kw, info in keywords_map.items():
+            if kw in descripcion:
+                if isinstance(info, dict) and "riesgo" in info:
+                    return info
+                if isinstance(info, dict) and "map" in info:
+                    target_map = self.attack_map.get(info["map"], {})
+                    if info["key"] in target_map:
+                        return target_map[info["key"]]
 
+        # 3. Default
         default_key = "DEFAULT_SURICATA" if fuente == "SURICATA" else "DEFAULT_WAZUH"
-        return self.attack_map.get(default_key, {})
+        return mapa_fuente.get(default_key, {})

@@ -13,15 +13,14 @@ NVIDIA_BASE_URL = "https://integrate.api.nvidia.com/v1"
 
 # Lista de modelos con failover automático (se prueban en orden)
 NVIDIA_MODELS = [
+    "deepseek-ai/deepseek-v4-flash",
+    "deepseek-ai/deepseek-v4-pro",
     "nvidia/llama-3.3-nemotron-super-49b-v1",
     "meta/llama-3.3-70b-instruct",
-    "deepseek-ai/deepseek-r1",
-    "mistralai/mistral-large",
-    "qwen/qwen3-235b-a22b",
 ]
 
-NVIDIA_TIMEOUT = int(os.getenv("NVIDIA_TIMEOUT", "20"))
-NVIDIA_MAX_TOKENS = 512
+NVIDIA_TIMEOUT = int(os.getenv("NVIDIA_TIMEOUT", "30"))
+NVIDIA_MAX_TOKENS = 1024
 NVIDIA_TEMPERATURE = 0.2
 
 # ============================================================

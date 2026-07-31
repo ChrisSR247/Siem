@@ -79,10 +79,9 @@ def leer_nuevos_eventos() -> Generator[dict, None, None]:
     suricata_cursor = leer_cursor(SURICATA_CURSOR)
 
     # Wazuh
-    if wazuh_path.exists():
-        try:
-            with open(wazuh_path, "r", encoding="utf-8") as f:
-                lineas = f.readlines()
+    try:
+        with open(wazuh_path, "r", encoding="utf-8") as f:
+            lineas = f.readlines()
             for i in range(wazuh_cursor, len(lineas)):
                 linea = lineas[i].strip()
                 if not linea:
@@ -93,14 +92,13 @@ def leer_nuevos_eventos() -> Generator[dict, None, None]:
                 except json.JSONDecodeError:
                     continue
             guardar_cursor(WAZUH_CURSOR, len(lineas))
-        except OSError:
-            pass
+    except OSError:
+        pass
 
     # Suricata
-    if suricata_path.exists():
-        try:
-            with open(suricata_path, "r", encoding="utf-8") as f:
-                lineas = f.readlines()
+    try:
+        with open(suricata_path, "r", encoding="utf-8") as f:
+            lineas = f.readlines()
             for idx in range(suricata_cursor, len(lineas)):
                 linea = lineas[idx].strip()
                 if not linea:
@@ -112,8 +110,8 @@ def leer_nuevos_eventos() -> Generator[dict, None, None]:
                 except json.JSONDecodeError:
                     continue
             guardar_cursor(SURICATA_CURSOR, len(lineas))
-        except OSError:
-            pass
+    except OSError:
+        pass
 
 
 def normalizar_evento_wazuh(evento: dict) -> dict:
