@@ -119,6 +119,8 @@ def normalizar_evento_wazuh(evento: dict) -> dict:
     agent = evento.get("agent", {})
     data = evento.get("data", {})
 
+    ip_origen = _extraer_ip_origen_wazuh(evento)
+
     return {
         "fuente": "WAZUH",
         "timestamp": evento.get("timestamp", ""),
@@ -127,8 +129,43 @@ def normalizar_evento_wazuh(evento: dict) -> dict:
         "nivel_original": rule.get("level", 0),
         "agente": agent.get("name", agent.get("id", "")),
         "agente_ip": agent.get("ip", ""),
-        "raw_log": data.get("srcip", data.get("dstip", "")),
+        "ip_origen": ip_origen,
+        "ip_destino": data.get("dstip", data.get("dst_ip", "")),
+        "raw_log": evento.get("full_log", ""),
     }
+
+
+def _extraer_ip_origen_wazuh(evento: dict) -> str:
+    import re
+
+    data = evento.get("data", {})
+
+    candidatos = [
+        data.get("srcip"),
+        data.get("src_ip"),
+        data.get("remote"),
+        data.get("src"),
+        data.get("id", ""),
+        evento.get("srcip"),
+        evento.get("src_ip"),
+        evento.get("agent", {}).get("ip"),
+    ]
+
+    for val in candidatos:
+        if not val:
+            continue
+        val_str = str(val)
+        match = re.search(r"\d{1,3}(?:\.\d{1,3}){3}", val_str)
+        if match:
+            return match.group()
+
+    # Fallback: extraer IP de srcip="1.2.3.4:1234" o full_log
+    full = str(evento.get("full_log", ""))
+    match = re.search(r"(?:\d{1,3}\.){3}\d{1,3}", full)
+    if match:
+        return match.group()
+
+    return ""
 
 
 def normalizar_evento_suricata(evento: dict) -> dict:
