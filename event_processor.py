@@ -121,22 +121,21 @@ class EventProcessor:
             "falso_positivo": False,
         }
 
-        ia_ok = False
         if self._debe_notificar(riesgo_final):
             log_coloreado("INFO", "  -> Consultando IA...")
             resultado_ia = analizar_evento(normalizado, resultado_reglas)
-            log_coloreado("INFO", f"  IA: {resultado_ia.get('resumen', '')[:100]}")
-            # IA ok solo si trae resumen real
             resumen_ia = resultado_ia.get("resumen", "").strip()
-            ia_ok = bool(resumen_ia and resumen_ia.lower() not in ("", "ninguno"))
+            if resumen_ia:
+                log_coloreado("INFO", f"  IA: {resumen_ia[:100]}")
+            else:
+                log_coloreado("WARNING", "  IA: No disponible")
 
         # Guardar siempre en DB
         if self._db_ok:
             guardar_evento(normalizado, resultado_reglas, resultado_ia)
 
         # Telegram con rate limit: 1 alerta igual cada 5 min max
-        # Solo enviar si IA analizo correctamente
-        if ia_ok:
+        if self._debe_notificar(riesgo_final):
             ip = normalizado.get("ip_origen", normalizado.get("agente_ip", normalizado.get("raw_log", "")))
             alert_key = f"{resultado_reglas.get('ataque','')}|{ip}"
             if self.rate_limiter.puede_enviar(alert_key):
