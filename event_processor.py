@@ -127,9 +127,9 @@ class EventProcessor:
         if self._db_ok:
             guardar_evento(normalizado, resultado_reglas, resultado_ia)
 
-        # Telegram con rate limit: 1 alerta igual cada 5 min max
+# Telegram con rate limit: 1 alerta igual cada 5 min max
         if self._debe_notificar(riesgo_final):
-ip = normalizado.get("ip_origen", normalizado.get("agente_ip", normalizado.get("raw_log", "")))
+            ip = normalizado.get("ip_origen", normalizado.get("agente_ip", normalizado.get("raw_log", "")))
             alert_key = f"{resultado_reglas.get('ataque','')}|{ip}"
             if self.rate_limiter.puede_enviar(alert_key):
                 enviar_alerta(normalizado, resultado_reglas, resultado_ia)
