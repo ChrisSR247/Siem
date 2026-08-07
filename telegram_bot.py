@@ -4,6 +4,8 @@ from config import TELEGRAM_TOKEN, TELEGRAM_CHAT_ID
 
 logger = logging.getLogger(__name__)
 
+_telegram_fallo_red = False
+
 
 def _emoji(riesgo: str) -> str:
     return {"BAJO": "\u26aa", "MEDIO": "\U0001f7e1", "ALTO": "\U0001f534", "CRITICO": "\U0001f4a3"}.get(riesgo.upper(), "\u2753")
@@ -59,8 +61,11 @@ def _formatear_mensaje(evento_normalizado: dict, resultado_reglas: dict, resulta
 
 
 def enviar_alerta(evento_normalizado: dict, resultado_reglas: dict, resultado_ia: dict) -> bool:
+    global _telegram_fallo_red
     if not TELEGRAM_TOKEN:
-        logger.warning("Token Telegram no configurado.")
+        if not _telegram_fallo_red:
+            logger.warning("Token Telegram no configurado.")
+            _telegram_fallo_red = True
         return False
 
     try:
@@ -73,13 +78,30 @@ def enviar_alerta(evento_normalizado: dict, resultado_reglas: dict, resultado_ia
         }
         resp = requests.post(url, json=payload, timeout=10)
         if resp.status_code == 200:
+            if _telegram_fallo_red:
+                logger.info("Telegram: conexion restaurada.")
+                _telegram_fallo_red = False
             logger.info("Alerta Telegram enviada.")
             return True
         else:
-            logger.error("Telegram error %s: %s", resp.status_code, resp.text)
+            if not _telegram_fallo_red:
+                logger.error("Telegram error %s: %s", resp.status_code, resp.text[:100])
+                _telegram_fallo_red = True
             return False
+    except requests.exceptions.ConnectionError:
+        if not _telegram_fallo_red:
+            logger.error("Telegram: sin conexion a api.telegram.org. Verificar red/firewall.")
+            _telegram_fallo_red = True
+        return False
+    except requests.exceptions.Timeout:
+        if not _telegram_fallo_red:
+            logger.error("Telegram: timeout de conexion.")
+            _telegram_fallo_red = True
+        return False
     except Exception as e:
-        logger.error("Excepcion Telegram: %s", e)
+        if not _telegram_fallo_red:
+            logger.error("Telegram: %s", str(e)[:100])
+            _telegram_fallo_red = True
         return False
 
 
