@@ -1,0 +1,300 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>SIEM Report: Operación Huella Digital: Exfiltración Dirigida de Información Financiera</title>
+    <style>
+        :root {
+            --bg-main: #0b0f19;
+            --bg-card: #151c2c;
+            --bg-card-hover: #1c263c;
+            --border: #23314d;
+            --text-main: #f1f5f9;
+            --text-muted: #94a3b8;
+            --accent-red: #ef4444;
+            --accent-blue: #38bdf8;
+            --accent-green: #10b981;
+            --accent-yellow: #f59e0b;
+            --accent-purple: #a855f7;
+        }
+        * { box-sizing: border-box; margin: 0; padding: 0; font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif; }
+        body { background: var(--bg-main); color: var(--text-main); padding: 30px; line-height: 1.6; }
+        .header { display: flex; justify-content: space-between; align-items: center; border-bottom: 2px solid var(--border); padding-bottom: 20px; margin-bottom: 25px; }
+        .header h1 { font-size: 24px; color: var(--accent-red); display: flex; align-items: center; gap: 10px; }
+        .header .meta { color: var(--text-muted); font-size: 14px; text-align: right; }
+        .grid-stats { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 15px; margin-bottom: 25px; }
+        .stat-card { background: var(--bg-card); border: 1px solid var(--border); border-radius: 8px; padding: 18px; text-align: center; }
+        .stat-card .val { font-size: 28px; font-weight: 800; color: var(--accent-blue); margin-top: 5px; }
+        .stat-card .val.crit { color: var(--accent-red); }
+        .stat-card .val.warn { color: var(--accent-yellow); }
+        .stat-card .val.ok { color: var(--accent-green); }
+        .stat-card .label { font-size: 12px; text-transform: uppercase; letter-spacing: 0.5px; color: var(--text-muted); }
+        .section { background: var(--bg-card); border: 1px solid var(--border); border-radius: 8px; padding: 22px; margin-bottom: 25px; }
+        .section h2 { font-size: 18px; margin-bottom: 15px; display: flex; align-items: center; gap: 8px; border-bottom: 1px solid var(--border); padding-bottom: 8px; }
+        table { width: 100%; border-collapse: collapse; font-size: 13px; margin-top: 10px; }
+        th, td { padding: 10px 12px; text-align: left; border-bottom: 1px solid var(--border); }
+        th { background: #1a2336; color: var(--text-muted); font-weight: 600; text-transform: uppercase; font-size: 11px; }
+        tr:hover { background: var(--bg-card-hover); }
+        .mono { font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace; font-size: 12px; }
+        .badge { padding: 3px 8px; border-radius: 4px; font-size: 11px; font-weight: 600; display: inline-block; }
+        .badge-phase { background: rgba(56, 189, 248, 0.15); color: var(--accent-blue); }
+        .badge-source { background: rgba(168, 85, 247, 0.15); color: var(--accent-purple); }
+        .text-mitre { color: #fb923c; font-weight: bold; }
+        .ioc-val { color: #f472b6; word-break: break-all; }
+        .fp-card { background: #0f172a; border-left: 4px solid var(--accent-green); padding: 12px 16px; margin-bottom: 10px; border-radius: 0 6px 6px 0; }
+        .fp-card h4 { color: var(--accent-green); font-size: 14px; margin-bottom: 4px; }
+        .fp-card p { font-size: 13px; color: var(--text-muted); }
+        .summary-box { background: #1a2336; border-left: 4px solid var(--accent-red); padding: 16px; border-radius: 0 8px 8px 0; font-size: 14px; }
+        @media print { body { background: white; color: black; } .section, .stat-card { border-color: #ccc; background: white; } }
+    </style>
+</head>
+<body>
+    <div class="header">
+        <div>
+            <h1>🚨 Operación Huella Digital: Exfiltración Dirigida de Información Financiera</h1>
+            <p style="color: var(--text-muted); font-size: 14px; margin-top: 5px;">Plataforma de Detección y Respuesta a Incidentes — AndesCorrelator Engine (ACE)</p>
+        </div>
+        <div class="meta">
+            <div><strong>Empresa:</strong> AndesLogística S.A.</div>
+            <div><strong>ID Caso:</strong> INC-2026-1015-01</div>
+            <div><strong>Fecha Incidente:</strong> 2026-10-15</div>
+        </div>
+    </div>
+
+    <div class="grid-stats">
+        <div class="stat-card">
+            <div class="label">Riesgo Global</div>
+            <div class="val crit">98 / 100</div>
+        </div>
+        <div class="stat-card">
+            <div class="label">Estación Comprometida</div>
+            <div class="val crit">FIN-PC07</div>
+        </div>
+        <div class="stat-card">
+            <div class="label">Usuario Comprometido</div>
+            <div class="val crit">dtorres</div>
+        </div>
+        <div class="stat-card">
+            <div class="label">Datos Exfiltrados</div>
+            <div class="val warn">188.74 MB</div>
+        </div>
+        <div class="stat-card">
+            <div class="label">Archivos Sustraídos</div>
+            <div class="val warn">400 docs</div>
+        </div>
+        <div class="stat-card">
+            <div class="label">Falsos Positivos Filtrados</div>
+            <div class="val ok">3</div>
+        </div>
+    </div>
+
+    <div class="section">
+        <h2>📋 Resumen Ejecutivo Forense</h2>
+        <div class="summary-box">
+            Se confirmó un incidente crítico de ciberseguridad en AndesLogística S.A. que resultó en la exfiltración de 188.74 MB de información financiera (400 archivos de \\FS01\Finanzas). El compromiso se originó en la estación FIN-PC07 del usuario dtorres a través de Spear Phishing web a las 10:14:09, seguido de persistencia y balizamiento C2 HTTPS periódico cada 300 segundos hacia cdn-sync-services.example (203.0.113.77:443).
+        </div>
+    </div>
+
+    <div class="section">
+        <h2>⏱️ Línea de Tiempo Unificada del Ataque (Kill Chain)</h2>
+        <table>
+            <thead>
+                <tr>
+                    <th>Timestamp (UTC)</th>
+                    <th>Fase de Ataque</th>
+                    <th>Fuente</th>
+                    <th>Actor / Host</th>
+                    <th>Detalle del Suceso Forense</th>
+                    <th>MITRE ATT&CK</th>
+                </tr>
+            </thead>
+            <tbody>
+                
+        <tr>
+            <td class="mono">2026-10-15 10:14:09</td>
+            <td><span class="badge badge-phase">Fase 1: Acceso Inicial (Spear Phishing)</span></td>
+            <td><span class="badge badge-source">PROXY</span></td>
+            <td>FIN-PC07 / dtorres</td>
+            <td>Descarga de archivo señuelo 'https://facturas-andinas.example/download/factura_septiembre.zip'</td>
+            <td class="mono text-mitre">T1566.002</td>
+        </tr>
+        
+        <tr>
+            <td class="mono">2026-10-15 10:16:22</td>
+            <td><span class="badge badge-phase">Fase 2: Ejecución y Evasión de Defensas</span></td>
+            <td><span class="badge badge-source">ENDPOINT</span></td>
+            <td>FIN-PC07 / dtorres</td>
+            <td>Ejecución de payload oculto con bypass: powershell.exe -NoProfile -WindowStyle Hidden -ExecutionPolicy Bypass -File C:\Users\dtorres\AppData\Local\Temp\update.ps1</td>
+            <td class="mono text-mitre">T1059.001 / T1564.003</td>
+        </tr>
+        
+        <tr>
+            <td class="mono">2026-10-15 10:17:06</td>
+            <td><span class="badge badge-phase">Fase 3: Comando y Control (C2)</span></td>
+            <td><span class="badge badge-source">FIREWALL / DNS</span></td>
+            <td>FIN-PC07 / dtorres</td>
+            <td>Inicio de balizamiento C2 HTTPS cada 5 minutos hacia 'cdn-sync-services.example' (203.0.113.77:443)</td>
+            <td class="mono text-mitre">T1071.001</td>
+        </tr>
+        
+        <tr>
+            <td class="mono">2026-10-15 10:42:03</td>
+            <td><span class="badge badge-phase">Fase 4: Reconocimiento Interno (Discovery)</span></td>
+            <td><span class="badge badge-source">ENDPOINT</span></td>
+            <td>FIN-PC07 / dtorres</td>
+            <td>Reconocimiento de usuario, dominio y carpetas compartidas (4 comandos LOLBins ejecutados)</td>
+            <td class="mono text-mitre">T1033 / T1482 / T1135</td>
+        </tr>
+        
+        <tr>
+            <td class="mono">2026-10-15 11:15:04</td>
+            <td><span class="badge badge-phase">Fase 5: Recolección y Staging</span></td>
+            <td><span class="badge badge-source">ENDPOINT</span></td>
+            <td>FIN-PC07 / dtorres</td>
+            <td>Lectura masiva de 400 archivos contables desde '\\FS01\Finanzas' hacia directorio temporal</td>
+            <td class="mono text-mitre">T1039</td>
+        </tr>
+        
+        <tr>
+            <td class="mono">2026-10-15 11:41:27</td>
+            <td><span class="badge badge-phase">Fase 5: Compresión Local de Datos</span></td>
+            <td><span class="badge badge-source">ENDPOINT</span></td>
+            <td>FIN-PC07 / dtorres</td>
+            <td>Ejecución de tar.exe para compresión en contenedor ZIP (C:\Users\dtorres\AppData\Local\Temp\docs_2026.zip)</td>
+            <td class="mono text-mitre">T1560.001</td>
+        </tr>
+        
+        <tr>
+            <td class="mono">2026-10-15 11:46:13</td>
+            <td><span class="badge badge-phase">Fase 6: Exfiltración de Datos</span></td>
+            <td><span class="badge badge-source">FIREWALL / PCAP</span></td>
+            <td>FIN-PC07 / dtorres</td>
+            <td>Exfiltración completada de 188.74 MB hacia el C2 (203.0.113.77:443) durante 481s</td>
+            <td class="mono text-mitre">T1041</td>
+        </tr>
+        
+            </tbody>
+        </table>
+    </div>
+
+    <div class="section">
+        <h2>🔍 Indicadores de Compromiso (IoCs)</h2>
+        <table>
+            <thead>
+                <tr>
+                    <th>Tipo de IoC</th>
+                    <th>Valor / Artefacto</th>
+                    <th>Descripción y Contexto</th>
+                    <th>MITRE</th>
+                </tr>
+            </thead>
+            <tbody>
+                
+        <tr>
+            <td><strong>URL Maliciosa</strong></td>
+            <td class="mono ioc-val">https://facturas-andinas.example/download/factura_septiembre.zip</td>
+            <td>URL de descarga del señuelo de Spear Phishing</td>
+            <td class="mono text-mitre">T1566.002</td>
+        </tr>
+        
+        <tr>
+            <td><strong>Dominio Malicioso</strong></td>
+            <td class="mono ioc-val">facturas-andinas.example</td>
+            <td>Sitio web trampa de facturación suplantada</td>
+            <td class="mono text-mitre">T1566.002</td>
+        </tr>
+        
+        <tr>
+            <td><strong>Archivo Implante</strong></td>
+            <td class="mono ioc-val">C:\Users\dtorres\AppData\Local\Temp\update.ps1</td>
+            <td>Script malicioso de PowerShell que opera como implante</td>
+            <td class="mono text-mitre">T1059.001</td>
+        </tr>
+        
+        <tr>
+            <td><strong>IP Servidor C2</strong></td>
+            <td class="mono ioc-val">203.0.113.77</td>
+            <td>Infraestructura externa C2 del atacante (cdn-sync-services.example)</td>
+            <td class="mono text-mitre">T1071.001</td>
+        </tr>
+        
+        <tr>
+            <td><strong>Dominio C2</strong></td>
+            <td class="mono ioc-val">cdn-sync-services.example</td>
+            <td>Nombre de dominio utilizado para balizamiento y exfiltración C2</td>
+            <td class="mono text-mitre">T1071.001</td>
+        </tr>
+        
+        <tr>
+            <td><strong>Archivo Contenedor</strong></td>
+            <td class="mono ioc-val">C:\Users\dtorres\AppData\Local\Temp\docs_2026.zip</td>
+            <td>Archivo comprimido con los 400 documentos financieros (size=191284391)</td>
+            <td class="mono text-mitre">T1560</td>
+        </tr>
+        
+        <tr>
+            <td><strong>Directorio de Staging</strong></td>
+            <td class="mono ioc-val">C:\Users\dtorres\AppData\Local\Temp\staging\</td>
+            <td>Carpeta temporal de almacenamiento y preparación de datos antes de compresión</td>
+            <td class="mono text-mitre">T1074.001</td>
+        </tr>
+        
+            </tbody>
+        </table>
+    </div>
+
+    <div class="section">
+        <h2>🛡️ Supresión Inteligente de Distractores y Falsos Positivos</h2>
+        <p style="color: var(--text-muted); font-size: 13px; margin-bottom: 15px;">
+            El motor de correlación contextual del SIEM diferenció automáticamente actividades anómalas pero legítimas, evitando fatiga de alertas:
+        </p>
+        
+        <div class="fp-card">
+            <h4>🛡️ Transferencia de Respaldo Legítimo (FS01)</h4>
+            <p>Tráfico saliente de 500 MB generado por el File Server durante su ventana programada de backup. No involucra estaciones financieras ni malware.</p>
+        </div>
+        
+        <div class="fp-card">
+            <h4>🛡️ Monitoreo Administrativo de Servicios TI (IT-PC02)</h4>
+            <p>Ejecución periódica programada de PowerShell para chequear estado de servicios corporativos por el personal de TI. Sin parámetros ofuscados ni acceso a recursos confidenciales.</p>
+        </div>
+        
+        <div class="fp-card">
+            <h4>🛡️ Fallos Aislados de Autenticación (Event ID 4625) (N/D)</h4>
+            <p>Se registraron 87 fallos distribuidos aleatoriamente en varios usuarios y estaciones durante toda la jornada, consistentes con errores de digitación de contraseñas. No se evidencia ataque de fuerza bruta concentrado.</p>
+        </div>
+        
+    </div>
+
+    <div class="section">
+        <h2>🔒 Plan de Prevención Activa y Hardening Empresarial (Defense-in-Depth)</h2>
+        <p style="color: var(--text-muted); font-size: 13px; margin-bottom: 15px;">
+            Medidas estructurales para blindar la infraestructura corporativa frente a futuras tentativas de intrusión:
+        </p>
+        <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 15px;">
+            <div class="fp-card" style="border-left-color: var(--accent-blue);">
+                <h4 style="color: var(--accent-blue);">1. Hardening PowerShell (GPO)</h4>
+                <p>Activar <code>ConstrainedLanguageMode</code> (__PSLockdownPolicy=4), ScriptBlockLogging (EID 4104) y Transcripción centralizada.</p>
+            </div>
+            <div class="fp-card" style="border-left-color: var(--accent-blue);">
+                <h4 style="color: var(--accent-blue);">2. Reglas ASR Windows Defender</h4>
+                <p>Bloqueo de contenido ejecutable desde web/correo, scripts ofuscados y llamadas a Win32 desde scripts no firmados.</p>
+            </div>
+            <div class="fp-card" style="border-left-color: var(--accent-blue);">
+                <h4 style="color: var(--accent-blue);">3. Bloqueo en %TEMP% y AppData</h4>
+                <p>Políticas de restricción de software (AppLocker/WDAC) impidiendo ejecución de .ps1, .bat y ejecutables en carpetas temporales.</p>
+            </div>
+            <div class="fp-card" style="border-left-color: var(--accent-blue);">
+                <h4 style="color: var(--accent-blue);">4. Auditoría SMB en File Server</h4>
+                <p>Segmentación por roles en <code>\\FS01\Finanzas</code> y umbral de alerta automática ante lectura masiva (>50 archivos/min).</p>
+            </div>
+        </div>
+        <div style="margin-top: 15px; padding: 12px; background: #0f172a; border-radius: 6px; font-size: 13px;">
+            <strong>Scripts generados en carpeta <code>prevention/</code>:</strong>
+            <code>01_contencion_inmediata_soar.ps1</code> | <code>02_hardening_gpo_empresarial.ps1</code> | <code>03_reglas_sysmon_prevencion.xml</code> | <code>04_bloqueo_firewall_perimetral.txt</code>
+        </div>
+    </div>
+
+</body>
+</html>

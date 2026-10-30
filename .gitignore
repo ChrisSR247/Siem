@@ -1,0 +1,18 @@
+# Variables de entorno y credenciales
+.env
+.env.local
+
+# Python
+__pycache__/
+*.pyc
+*.pyo
+
+# Base de datos y logs de sesión
+*.db
+.wazuh_cursor
+.suricata_cursor
+
+# Reportes temporales
+reports/*.json
+reports/*.csv
+

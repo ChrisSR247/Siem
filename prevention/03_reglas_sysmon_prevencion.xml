@@ -1,0 +1,54 @@
+<!--
+  Sysmon v15.0 Configuration - AndesLogística S.A.
+  Detección Temprana de Spear Phishing, Balizamiento C2 y Exfiltración Masiva
+-->
+<Sysmon schemaversion="4.90">
+  <EventFiltering>
+
+    <!-- EVENT ID 1: Process Creation - Detectar Scripting Oculto y LOLBins -->
+    <RuleGroup name="ProcessCreation" groupRelation="or">
+      <ProcessCreate onmatch="include">
+        <!-- Detectar ejecución de PowerShell con flags de evasión -->
+        <CommandLine condition="contains">Hidden</CommandLine>
+        <CommandLine condition="contains">Bypass</CommandLine>
+        <CommandLine condition="contains">update.ps1</CommandLine>
+        <!-- Detectar reconocimiento LOLBins -->
+        <OriginalFileName condition="is">whoami.exe</OriginalFileName>
+        <OriginalFileName condition="is">nltest.exe</OriginalFileName>
+        <Image condition="end with">nltest.exe</Image>
+        <CommandLine condition="contains">net view</CommandLine>
+        <CommandLine condition="contains">net use</CommandLine>
+        <!-- Detectar empaquetado de archivos con utilitarios del sistema -->
+        <OriginalFileName condition="is">tar.exe</OriginalFileName>
+        <CommandLine condition="contains">tar.exe</CommandLine>
+        <CommandLine condition="contains">docs_2026.zip</CommandLine>
+      </ProcessCreate>
+    </RuleGroup>
+
+    <!-- EVENT ID 3: Network Connection - Detectar Balizamiento C2 y Exfiltración -->
+    <RuleGroup name="NetworkConnection" groupRelation="or">
+      <NetworkConnect onmatch="include">
+        <DestinationIp condition="is">203.0.113.77</DestinationIp>
+        <DestinationPort condition="is">443</DestinationPort>
+      </NetworkConnect>
+    </RuleGroup>
+
+    <!-- EVENT ID 11: File Creation - Detectar Creación de Archivos ZIP en Temp -->
+    <RuleGroup name="FileCreate" groupRelation="or">
+      <FileCreate onmatch="include">
+        <TargetFilename condition="contains">AppData\Local\Temp\update.ps1</TargetFilename>
+        <TargetFilename condition="contains">AppData\Local\Temp\docs_2026.zip</TargetFilename>
+        <TargetFilename condition="contains">staging</TargetFilename>
+      </FileCreate>
+    </RuleGroup>
+
+    <!-- EVENT ID 22: DNS Query - Detectar Dominio C2 y Phishing -->
+    <RuleGroup name="DnsQuery" groupRelation="or">
+      <DnsQuery onmatch="include">
+        <QueryName condition="contains">cdn-sync-services.example</QueryName>
+        <QueryName condition="contains">facturas-andinas.example</QueryName>
+      </DnsQuery>
+    </RuleGroup>
+
+  </EventFiltering>
+</Sysmon>

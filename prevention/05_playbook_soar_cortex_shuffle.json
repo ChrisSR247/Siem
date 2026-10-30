@@ -1,0 +1,64 @@
+{
+  "playbook_name": "SOAR_Incident_Response_Exfiltration_Huella_Digital",
+  "version": "1.0",
+  "organization": "AndesLogística S.A.",
+  "trigger_condition": {
+    "source": "AndesCorrelator Engine (ACE)",
+    "event_type": "ACE-CR05: Exfiltración de Datos Masiva",
+    "severity_threshold": "CRITICO",
+    "risk_score_min": 90
+  },
+  "automated_actions_sequence": [
+    {
+      "step": 1,
+      "name": "Host_Network_Isolation",
+      "action_type": "EDR_Command",
+      "target": "${incident.compromised_host}",
+      "command": "isolate-endpoint --keep-management-ip 10.20.10.102",
+      "timeout_seconds": 15
+    },
+    {
+      "step": 2,
+      "name": "Perimeter_IP_Block",
+      "action_type": "Firewall_API",
+      "target": "${incident.c2_ip}",
+      "firewall_profile": "Global_Deny_List",
+      "lease_duration": "indefinite"
+    },
+    {
+      "step": 3,
+      "name": "DNS_Sinkhole",
+      "action_type": "Internal_DNS_API",
+      "domains": [
+        "cdn-sync-services.example",
+        "facturas-andinas.example"
+      ],
+      "redirect_ip": "127.0.0.1"
+    },
+    {
+      "step": 4,
+      "name": "ActiveDirectory_Account_Lockout",
+      "action_type": "AD_Integration",
+      "username": "${incident.compromised_user}",
+      "action": "Disable-Account-And-Revoke-Kerberos-Tickets"
+    },
+    {
+      "step": 5,
+      "name": "SMB_Session_Termination",
+      "action_type": "FileServer_RPC",
+      "server": "FS01",
+      "user": "${incident.compromised_user}",
+      "action": "Close-SmbSession"
+    },
+    {
+      "step": 6,
+      "name": "Notify_SOC_Team",
+      "action_type": "Telegram_Webhook_Email",
+      "channels": [
+        "Telegram_SOC_Alerts",
+        "soc-lead@andeslogistica.com"
+      ],
+      "template": "ALERTA_CRITICA_INCIDENTE_CONTENIDO"
+    }
+  ]
+}

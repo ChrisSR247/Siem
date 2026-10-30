@@ -1,14 +1,34 @@
 import json
-import time
 import logging
-from typing import Dict, Optional
+import time
+from pathlib import Path
+from typing import Dict, List, Optional
 
-from parser import normalizar_evento_wazuh, normalizar_evento_suricata, leer_nuevos_eventos
+from parser import (
+    normalizar_evento_wazuh,
+    normalizar_evento_suricata,
+    leer_nuevos_eventos,
+    leer_todos_los_eventos_csv,
+    analizar_pcap_basico,
+)
 from rule_engine import RuleEngine
-from ai_analyzer import analizar_evento
-from database import guardar_evento, inicializar_db
+from correlator import ThreatCorrelator
+from ai_analyzer import analizar_evento, analizar_incidente_forense
+from database import (
+    guardar_evento,
+    guardar_lote_eventos,
+    guardar_incidente_correlacionado,
+    inicializar_db,
+)
+from report_generator import (
+    generar_informe_forense_md,
+    generar_dashboard_html,
+    generar_iocs_json,
+    generar_linea_tiempo_csv,
+    generar_reporte_json,
+)
 from telegram_bot import enviar_alerta
-from config import ALERT_MIN_RISK, RISK_LEVELS, POLL_INTERVAL_SECONDS
+from config import ALERT_MIN_RISK, RISK_LEVELS, POLL_INTERVAL_SECONDS, EVIDENCIAS_DIR
 from utils import ahora_iso, log_coloreado
 
 logger = logging.getLogger(__name__)
@@ -64,12 +84,111 @@ class EventProcessor:
         self._db_ok = False
 
     def iniciar(self):
-        log_coloreado("INICIO", "Inicializando base de datos...")
+        log_coloreado("INFO", "Inicializando base de datos del SIEM...")
         inicializar_db()
         self._db_ok = True
-        log_coloreado("INICIO", "Procesador de eventos listo.")
+        log_coloreado("INFO", "Procesador de eventos listo.")
+
+    def procesar_evidencias_hackathon(self, evidencias_dir: Optional[Path] = None) -> dict:
+        """
+        Procesa de principio a fin el lote de evidencias del Hackathon (Operación Huella Digital).
+        1. Ingesta y normaliza los 5 CSVs.
+        2. Analiza los flujos de tráfico en el archivo PCAP.
+        3. Aplica el motor de correlación multifuente ThreatCorrelator.
+        4. Realiza síntesis pericial con el analizador de incidentes (IA/Heurística local).
+        5. Persiste eventos, incidentes, IoCs y línea de tiempo en SQLite.
+        6. Genera los informes ejecutivos (Markdown, Dashboard HTML, JSON, CSV).
+        """
+        self.iniciar()
+        t_inicio = time.time()
+
+        base_dir = Path(evidencias_dir or EVIDENCIAS_DIR)
+        log_coloreado("INFO", f"Iniciando análisis forense sobre: {base_dir}")
+
+        # 1. Cargar y ordenar eventos de todos los CSVs
+        eventos = leer_todos_los_eventos_csv(base_dir)
+        if not eventos:
+            log_coloreado("ERROR", "No se encontraron eventos CSV para analizar.")
+            return {"error": "Sin eventos"}
+
+        # 2. Analizar PCAP
+        log_coloreado("INFO", "Analizando paquetes y flujos en captura PCAP...")
+        pcap_info = analizar_pcap_basico(base_dir / "suspicious-traffic.pcap")
+        if pcap_info.get("evidencia_confirmada"):
+            log_coloreado("INFO", f"  PCAP: {pcap_info.get('resumen')}")
+
+        # 3. Correlación Multifuente
+        correlador = ThreatCorrelator(eventos, pcap_info)
+        incidente = correlador.ejecutar_analisis_completo()
+
+        # 4. Síntesis y Evaluación de IA
+        log_coloreado("INFO", "Generando análisis de impacto, contención y recomendaciones...")
+        analisis_ia = analizar_incidente_forense(incidente)
+        incidente["analisis_ia"] = analisis_ia
+        incidente["resumen_ia"] = analisis_ia.get("resumen_ejecutivo", "")
+
+        # 5. Persistencia en Base de Datos
+        log_coloreado("INFO", "Almacenando evidencias e incidente correlacionado en base de datos SQLite...")
+        guardar_lote_eventos(eventos)
+        guardar_incidente_correlacionado(incidente, analisis_ia.get("resumen_ejecutivo", ""))
+
+        # 6. Generar Reportes y Entregables del Hackathon
+        log_coloreado("INFO", "Generando informes forenses y dashboards ejecutivos...")
+        path_md = generar_informe_forense_md(incidente, analisis_ia)
+        path_html = generar_dashboard_html(incidente, analisis_ia)
+        path_iocs = generar_iocs_json(incidente)
+        path_timeline = generar_linea_tiempo_csv(incidente)
+        path_report_json = generar_reporte_json(f"incidente_{incidente['incidente_id']}.json")
+
+        # 7. Generar Suite de Prevención Activa y Hardening Empresarial
+        log_coloreado("INFO", "Construyendo suite de prevención, contención SOAR y hardening empresarial...")
+        from preventer import EnterprisePreventer
+        preventer = EnterprisePreventer(incidente)
+        suite_prevencion = preventer.generar_suite_prevencion_completa()
+
+        t_total = time.time() - t_inicio
+        log_coloreado("INFO", f"Análisis forense y generación de defensas completados en {t_total:.2f} segundos.")
+
+        # Notificar por Telegram si está configurado
+        try:
+            ev_dummy = {
+                "fuente": "CORRELATOR_ACE",
+                "timestamp": ahora_iso(),
+                "ip_origen": incidente.get("ip_host", ""),
+                "ip_destino": "203.0.113.77",
+                "agente": incidente.get("host_comprometido", ""),
+                "categoria": "EXFILTRACION_CRITICA",
+            }
+            reglas_dummy = {
+                "ataque": incidente.get("titulo", ""),
+                "riesgo": "CRITICO",
+                "mitre": "T1566 / T1059 / T1071 / T1039 / T1041",
+                "recomendacion": "Aislar FIN-PC07 y revocar credenciales de dtorres inmediatamente.",
+            }
+            ia_dummy = {
+                "modelo": analisis_ia.get("modelo", ""),
+                "resumen": analisis_ia.get("resumen_ejecutivo", "")[:280],
+                "severidad": "CRITICO",
+            }
+            enviar_alerta(ev_dummy, reglas_dummy, ia_dummy)
+        except Exception as e:
+            logger.debug("Notificación telegram opcional: %s", e)
+
+        return {
+            "incidente": incidente,
+            "tiempo_segundos": t_total,
+            "reportes": {
+                "informe_md": path_md,
+                "dashboard_html": path_html,
+                "iocs_json": path_iocs,
+                "timeline_csv": path_timeline,
+                "reporte_json": path_report_json,
+            },
+            "prevencion": suite_prevencion,
+        }
 
     def procesar_por_lote(self) -> int:
+        """Modo de monitoreo continuo para Wazuh y Suricata."""
         contador = 0
         for raw in leer_nuevos_eventos():
             try:
@@ -94,16 +213,13 @@ class EventProcessor:
 
         desc = normalizado.get("descripcion", "")
 
-        # Reglas locales
         resultado_reglas = self.rule_engine.analizar(normalizado)
         riesgo = resultado_reglas.get("riesgo", "BAJO")
 
-        # Solo loggear eventos MEDIO o superior
         if RISK_LEVELS.get(riesgo, 0) >= RISK_LEVELS.get("MEDIO", 2):
             log_coloreado("DEBUG", f"Evento: {fuente} | {desc[:80]}")
             log_coloreado("INFO", f"  Riesgo: {riesgo} | {resultado_reglas.get('ataque')}")
 
-        # Patrones: solo subir riesgo si ya era MEDIO o ALTO
         es_patron = self.tracker.track(normalizado, resultado_reglas)
         if es_patron and riesgo in ("MEDIO", "ALTO"):
             resultado_reglas["riesgo"] = "ALTO"
@@ -111,7 +227,6 @@ class EventProcessor:
 
         riesgo_final = resultado_reglas.get("riesgo", riesgo)
 
-        # IA solo si ALTO o CRITICO
         resultado_ia = {
             "modelo": "N/A",
             "resumen": "",
@@ -130,11 +245,9 @@ class EventProcessor:
             else:
                 log_coloreado("WARNING", "  IA: No disponible")
 
-        # Guardar siempre en DB
         if self._db_ok:
             guardar_evento(normalizado, resultado_reglas, resultado_ia)
 
-        # Telegram con rate limit: 1 alerta igual cada 5 min max
         if self._debe_notificar(riesgo_final):
             ip = normalizado.get("ip_origen", normalizado.get("agente_ip", normalizado.get("raw_log", "")))
             alert_key = f"{resultado_reglas.get('ataque','')}|{ip}"

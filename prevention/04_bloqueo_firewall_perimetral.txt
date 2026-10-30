@@ -1,0 +1,52 @@
+# ==============================================================================
+# REGLAS DE BLOQUEO PERIMETRAL INMEDIATO - ANDESLOGÍSTICA S.A.
+# Amenaza: Operación Huella Digital (C2 & Spear Phishing)
+# ==============================================================================
+
+# --- 1. FORTINET FORTIGATE (FortiOS CLI) ---
+config firewall address
+    edit "MALICIOUS_C2_IP"
+        set subnet 203.0.113.77 255.255.255.255
+        set comment "Operacion Huella Digital - Servidor C2"
+    next
+    edit "MALICIOUS_C2_FQDN"
+        set type fqdn
+        set fqdn "cdn-sync-services.example"
+        set comment "Dominio C2 de Balizamiento"
+    next
+    edit "PHISHING_DOMAIN_FQDN"
+        set type fqdn
+        set fqdn "facturas-andinas.example"
+        set comment "Dominio Spear Phishing Facturacion"
+    next
+end
+
+config firewall policy
+    edit 0
+        set name "DENY_INCIDENT_C2_OUTBOUND"
+        set srcintf "internal" "lan"
+        set dstintf "wan1" "wan2"
+        set srcaddr "all"
+        set dstaddr "MALICIOUS_C2_IP" "MALICIOUS_C2_FQDN" "PHISHING_DOMAIN_FQDN"
+        set action deny
+        set schedule "always"
+        set service "ALL"
+        set logtraffic all
+    next
+end
+
+# --- 2. PALO ALTO NETWORKS (PAN-OS CLI) ---
+set address C2_Server_203.0.113.77 ip-netmask 203.0.113.77/32 description "Operacion Huella Digital C2"
+set address Phishing_Site fqdn facturas-andinas.example description "Spear Phishing Vector"
+set address C2_Domain fqdn cdn-sync-services.example description "C2 Domain"
+set rulebase security rules "DROP_C2_EXFILTRATION" to untrust from trust source any destination [ C2_Server_203.0.113.77 Phishing_Site C2_Domain ] service any action drop log-start yes
+
+# --- 3. LINUX IPTABLES / EDGE GATEWAY ---
+iptables -I FORWARD -d 203.0.113.77 -j DROP
+iptables -I OUTPUT -d 203.0.113.77 -j DROP
+iptables -I FORWARD -p tcp --dport 443 -d 203.0.113.77 -j REJECT --reject-with tcp-reset
+
+# --- 4. BIND DNS / PI-HOLE (DNS Sinkhole) ---
+# Agregar en named.conf.local o lista de sinkhole:
+zone "cdn-sync-services.example" { type master; file "/etc/bind/db.blocked-sinkhole"; };
+zone "facturas-andinas.example" { type master; file "/etc/bind/db.blocked-sinkhole"; };

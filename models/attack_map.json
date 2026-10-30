@@ -213,7 +213,307 @@
       "recomendacion": "Evento de red no clasificado como amenaza."
     }
   },
+  "Proxy": {
+    "PROXY_PHISHING_DOWNLOAD": {
+      "ataque": "Descarga de Archivo Malicioso (Spear Phishing)",
+      "riesgo": "CRITICO",
+      "mitre": "T1566.002",
+      "prioridad": "Critica",
+      "cvss": 8.8,
+      "recomendacion": "Bloquear dominio y URL en el proxy. Aislar el equipo del usuario inmediatamente."
+    },
+    "PROXY_SUSPICIOUS_GET": {
+      "ataque": "Navegacion a Dominio No Categorizado / Sospechoso",
+      "riesgo": "MEDIO",
+      "mitre": "T1189",
+      "prioridad": "Media",
+      "cvss": 5.5,
+      "recomendacion": "Revisar reputacion del dominio y analizar descargas asociadas."
+    },
+    "DEFAULT_PROXY": {
+      "ataque": "Trafico Web Proxy",
+      "riesgo": "BAJO",
+      "mitre": "",
+      "prioridad": "Baja",
+      "cvss": 1.0,
+      "recomendacion": "Navegacion web corporativa rutinaria."
+    }
+  },
+  "Endpoint": {
+    "EP_POWERSHELL_HIDDEN": {
+      "ataque": "Ejecucion Oculta de PowerShell con Bypass de Politicas",
+      "riesgo": "CRITICO",
+      "mitre": "T1059.001",
+      "prioridad": "Critica",
+      "cvss": 9.3,
+      "recomendacion": "Terminar proceso inmediatamente. Aislar estacion de trabajo y extraer script de %TEMP% para analisis."
+    },
+    "EP_RECON_LOLBINS": {
+      "ataque": "Reconocimiento y Enumeracion Interna (LOLBins)",
+      "riesgo": "ALTO",
+      "mitre": "T1033",
+      "prioridad": "Alta",
+      "cvss": 7.2,
+      "recomendacion": "Verificar contexto del proceso padre. Alerta de escalada de privilegios o lateralizacion."
+    },
+    "EP_STAGING_COMPRESSION": {
+      "ataque": "Empaquetado y Compresion Local de Datos (Staging)",
+      "riesgo": "ALTO",
+      "mitre": "T1560.001",
+      "prioridad": "Alta",
+      "cvss": 7.8,
+      "recomendacion": "Bloquear ejecucion de herramientas de compresion en carpetas temporales de usuarios."
+    },
+    "EP_MASS_FILE_ACCESS": {
+      "ataque": "Acceso Masivo No Interactivo a Recursos Compartidos",
+      "riesgo": "ALTO",
+      "mitre": "T1039",
+      "prioridad": "Alta",
+      "cvss": 8.0,
+      "recomendacion": "Revocar temporalmente credenciales de acceso a carpetas compartidas y auditar transferencias."
+    },
+    "DEFAULT_ENDPOINT": {
+      "ataque": "Evento Endpoint",
+      "riesgo": "BAJO",
+      "mitre": "",
+      "prioridad": "Baja",
+      "cvss": 1.0,
+      "recomendacion": "Actividad de host normal del sistema operativo."
+    }
+  },
+  "DNS": {
+    "DNS_C2_QUERY": {
+      "ataque": "Resolucion de Dominio C2 (Comando y Control)",
+      "riesgo": "CRITICO",
+      "mitre": "T1071.001",
+      "prioridad": "Critica",
+      "cvss": 9.0,
+      "recomendacion": "Hundir la resolucion (DNS Sinkhole) del dominio sospechoso e inspeccionar hosts consultantes."
+    },
+    "DEFAULT_DNS": {
+      "ataque": "Consulta DNS Corporativa",
+      "riesgo": "BAJO",
+      "mitre": "",
+      "prioridad": "Baja",
+      "cvss": 0.5,
+      "recomendacion": "Resolucion de nombres normal."
+    }
+  },
+  "Firewall": {
+    "FW_EXFILTRATION": {
+      "ataque": "Exfiltracion de Alto Volumen de Datos",
+      "riesgo": "CRITICO",
+      "mitre": "T1041",
+      "prioridad": "Critica",
+      "cvss": 9.8,
+      "recomendacion": "Cortar conexion saliente de inmediato. Bloquear IP de destino en el firewall perimetral."
+    },
+    "FW_C2_BEACONING": {
+      "ataque": "Balizamiento Periodico hacia Servidor C2 (Beaconing)",
+      "riesgo": "CRITICO",
+      "mitre": "T1071.001",
+      "prioridad": "Critica",
+      "cvss": 8.9,
+      "recomendacion": "Bloquear trafico hacia la IP externa e iniciar contencion en el equipo emisor."
+    },
+    "FW_LEGITIMATE_BACKUP": {
+      "ataque": "Respaldo Programado Legítimo (Distractor Suprimido)",
+      "riesgo": "BAJO",
+      "mitre": "",
+      "prioridad": "Baja",
+      "cvss": 0.0,
+      "recomendacion": "Trafico autorizado del servidor de archivos FS01 hacia el destino de respaldo oficial."
+    },
+    "DEFAULT_FIREWALL": {
+      "ataque": "Flujo de Red Firewall",
+      "riesgo": "BAJO",
+      "mitre": "",
+      "prioridad": "Baja",
+      "cvss": 1.0,
+      "recomendacion": "Conexion de red dentro de politicas permitidas."
+    }
+  },
+  "Authentication": {
+    "AUTH_FAILED_LOGON": {
+      "ataque": "Intento Fallido de Autenticacion",
+      "riesgo": "MEDIO",
+      "mitre": "T1110.001",
+      "prioridad": "Media",
+      "cvss": 4.5,
+      "recomendacion": "Verificar si es error de contrasena de usuario o intento de fuerza bruta."
+    },
+    "AUTH_SUCCESSFUL_LOGON": {
+      "ataque": "Inicio de Sesion Exitoso",
+      "riesgo": "BAJO",
+      "mitre": "T1078",
+      "prioridad": "Baja",
+      "cvss": 0.5,
+      "recomendacion": "Autenticacion normal en Directorio Activo o servicio de red."
+    },
+    "DEFAULT_AUTHENTICATION": {
+      "ataque": "Evento de Autenticacion",
+      "riesgo": "BAJO",
+      "mitre": "",
+      "prioridad": "Baja",
+      "cvss": 1.0,
+      "recomendacion": "Actividad de logon corporativa."
+    }
+  },
   "keywords": {
+    "facturas-andinas.example": {
+      "map": "Proxy",
+      "key": "PROXY_PHISHING_DOWNLOAD",
+      "riesgo": "CRITICO",
+      "ataque": "Spear Phishing - Sitio Trampa de Facturacion",
+      "mitre": "T1566.002",
+      "cvss": 9.0,
+      "prioridad": "Critica",
+      "recomendacion": "Bloquear dominio y URL en proxy corporativo. Notificar al area financiera."
+    },
+    "factura_septiembre.zip": {
+      "map": "Proxy",
+      "key": "PROXY_PHISHING_DOWNLOAD",
+      "riesgo": "CRITICO",
+      "ataque": "Descarga de Payload Malicioso Comprimido",
+      "mitre": "T1204.002",
+      "cvss": 9.2,
+      "prioridad": "Critica",
+      "recomendacion": "Aislar host emisor (FIN-PC07). Extraer y bloquear hash del archivo."
+    },
+    "update.ps1": {
+      "map": "Endpoint",
+      "key": "EP_POWERSHELL_HIDDEN",
+      "riesgo": "CRITICO",
+      "ataque": "Ejecucion de Script Implante Malicioso (update.ps1)",
+      "mitre": "T1059.001",
+      "cvss": 9.5,
+      "prioridad": "Critica",
+      "recomendacion": "Matar arbol de procesos de PowerShell. Iniciar investigacion forense de memoria."
+    },
+    "windowstyle hidden": {
+      "map": "Endpoint",
+      "key": "EP_POWERSHELL_HIDDEN",
+      "riesgo": "CRITICO",
+      "ataque": "Evasion de Defensas - Ventana Oculta de Consola",
+      "mitre": "T1564.003",
+      "cvss": 8.5,
+      "prioridad": "Critica",
+      "recomendacion": "Investigar script que intento eludir la deteccion visual del usuario."
+    },
+    "executionpolicy bypass": {
+      "map": "Endpoint",
+      "key": "EP_POWERSHELL_HIDDEN",
+      "riesgo": "CRITICO",
+      "ataque": "Evasion de Defensas - Bypass de Politica de PowerShell",
+      "mitre": "T1562.001",
+      "cvss": 8.5,
+      "prioridad": "Critica",
+      "recomendacion": "Reforzar directivas de grupo GPO de ejecucion de scripts restringida."
+    },
+    "cdn-sync-services.example": {
+      "map": "DNS",
+      "key": "DNS_C2_QUERY",
+      "riesgo": "CRITICO",
+      "ataque": "Dominio de Infraestructura C2 Maliciosa",
+      "mitre": "T1071.001",
+      "cvss": 9.6,
+      "prioridad": "Critica",
+      "recomendacion": "Bloquear dominio en servidores DNS internos (Sinkholing)."
+    },
+    "203.0.113.77": {
+      "map": "Firewall",
+      "key": "FW_C2_BEACONING",
+      "riesgo": "CRITICO",
+      "ataque": "Conexion a Servidor Externo C2",
+      "mitre": "T1071.001",
+      "cvss": 9.8,
+      "prioridad": "Critica",
+      "recomendacion": "Bloquear IP 203.0.113.77 inmediatamente en todos los firewalls perimetrales."
+    },
+    "tar.exe": {
+      "map": "Endpoint",
+      "key": "EP_STAGING_COMPRESSION",
+      "riesgo": "ALTO",
+      "ataque": "Empaquetado de Datos con Utilitario Tar",
+      "mitre": "T1560.001",
+      "cvss": 7.5,
+      "prioridad": "Alta",
+      "recomendacion": "Inspeccionar los directorios incluidos en la orden de empaquetado."
+    },
+    "docs_2026.zip": {
+      "map": "Endpoint",
+      "key": "EP_STAGING_COMPRESSION",
+      "riesgo": "ALTO",
+      "ataque": "Creacion de Contenedor de Informacion Exfiltrada",
+      "mitre": "T1560",
+      "cvss": 8.2,
+      "prioridad": "Alta",
+      "recomendacion": "Preservar copia forense del contenedor para inventario de fuga de informacion."
+    },
+    "nltest.exe": {
+      "map": "Endpoint",
+      "key": "EP_RECON_LOLBINS",
+      "riesgo": "ALTO",
+      "ataque": "Reconocimiento de Controladores de Dominio (nltest)",
+      "mitre": "T1482",
+      "cvss": 7.0,
+      "prioridad": "Alta",
+      "recomendacion": "Investigar si la cuenta de usuario tenia justificacion para listar el DC."
+    },
+    "net view": {
+      "map": "Endpoint",
+      "key": "EP_RECON_LOLBINS",
+      "riesgo": "MEDIO",
+      "ataque": "Enumeracion de Recursos Compartidos (net view)",
+      "mitre": "T1135",
+      "cvss": 6.0,
+      "prioridad": "Media",
+      "recomendacion": "Monitorear posibles movimientos laterales subsecuentes."
+    },
+    "net use \\\\fs01": {
+      "map": "Endpoint",
+      "key": "EP_RECON_LOLBINS",
+      "riesgo": "MEDIO",
+      "ataque": "Mapeo de Recurso Compartido de Finanzas",
+      "mitre": "T1135",
+      "cvss": 6.5,
+      "prioridad": "Media",
+      "recomendacion": "Verificar permisos de acceso y sesiones SMB activas en FS01."
+    },
+    "whoami.exe": {
+      "map": "Endpoint",
+      "key": "EP_RECON_LOLBINS",
+      "riesgo": "MEDIO",
+      "ataque": "Descubrimiento de Usuario y Privilegios (whoami)",
+      "mitre": "T1033",
+      "cvss": 5.0,
+      "prioridad": "Media",
+      "recomendacion": "Normal en administradores; sospechoso inmediatamente tras script de phishing."
+    },
+    "backup.example.net": {
+      "riesgo": "BAJO",
+      "ataque": "Servicio de Respaldo Legítimo (Distractor Suprimido)",
+      "mitre": "",
+      "cvss": 0.0,
+      "prioridad": "Baja",
+      "recomendacion": "Trafico autorizado de respaldo corporativo. Falso positivo descartado."
+    },
+    "198.51.100.44": {
+      "riesgo": "BAJO",
+      "ataque": "Servidor de Respaldo Corporativo (Distractor Suprimido)",
+      "mitre": "",
+      "cvss": 0.0,
+      "prioridad": "Baja",
+      "recomendacion": "Servidor oficial de copias de seguridad de AndesLogística. Falso positivo descartado."
+    },
+    "powershell.exe get-service": {
+      "riesgo": "BAJO",
+      "ataque": "Monitoreo Administrativo de Servicios TI (Distractor Suprimido)",
+      "mitre": "",
+      "cvss": 0.0,
+      "prioridad": "Baja",
+      "recomendacion": "Tarea programada del administrador de sistemas en IT-PC02."
+    },
     "brute force": {"map": "Wazuh", "key": "5710"},
     "fuerza bruta": {"map": "Wazuh", "key": "5710"},
     "login failed": {"map": "Wazuh", "key": "500"},
@@ -252,7 +552,6 @@
     "stun binding": {"riesgo": "BAJO", "_ataque": "Trafico STUN/NAT", "recomendacion": "Trafico STUN/NAT normal."},
     "stun": {"riesgo": "BAJO", "_ataque": "Trafico STUN/NAT", "recomendacion": "Trafico STUN/NAT normal."},
     "missed the password": {"map": "Wazuh", "key": "5712"},
-    "authentication failure": {"map": "Wazuh", "key": "5712"},
     "hunting": {"riesgo": "BAJO", "_ataque": "Regla de Caza de Amenazas", "recomendacion": "Regla de caza de amenazas, no es un ataque real."},
     "telegram api": {"riesgo": "BAJO", "_ataque": "Dominio Telegram Legitimo", "recomendacion": "Dominio Telegram legitimo, no es amenaza."},
     "telegram": {"riesgo": "BAJO", "_ataque": "Trafico Telegram", "recomendacion": "Trafico Telegram normal."},

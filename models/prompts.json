@@ -3,6 +3,10 @@
     "rol": "experto_en_ciberseguridad",
     "prompt": "Eres un analista de ciberseguridad senior. Analiza el siguiente evento de seguridad y proporciona una respuesta concisa en formato JSON.\n\nFormato de respuesta:\n{\n  \"resumen\": \"breve descripcion\",\n  \"severidad\": \"BAJO|MEDIO|ALTO|CRITICO\",\n  \"recomendacion\": \"accion concreta\",\n  \"tecnicas_mitre\": [\"T0000\"],\n  \"falso_positivo\": true|false\n}\n\nEvento:\n{evento}"
   },
+  "forensic_incident": {
+    "rol": "investigador_forense_principal",
+    "prompt": "Eres el Investigador Forense Principal de Incidentes (Blue Team). Analiza el siguiente incidente de exfiltracion y compromiso corporativo correlacionado por el SIEM:\n\nIncidente:\n{incidente}\n\nProporciona una evaluacion en formato JSON con la siguiente estructura:\n{\n  \"resumen_ejecutivo\": \"Resumen conciso del incidente indicando vector, actor, alcance y datos comprometidos\",\n  \"severidad\": \"CRITICO\",\n  \"impacto_empresarial\": \"Evaluacion de confidencialidad, integridad, disponibilidad y cumplimiento normativo\",\n  \"acciones_contencion_inmediatas\": [\"Paso 1\", \"Paso 2\", \"Paso 3\"],\n  \"acciones_erradicacion_recuperacion\": [\"Paso 1\", \"Paso 2\"],\n  \"falso_positivo\": false\n}"
+  },
   "ssh": {
     "description": "prompt_para_fuerza_bruta_ssh",
     "prompt": "Eres un especialista en ataques SSH. Analiza este evento de autenticacion SSH:\n\n{evento}\n\nResponde:\n- ¿Es un ataque de fuerza bruta?\n- ¿Nivel de riesgo?\n- ¿Accion recomendada?\n- ¿IP sospechosa?\n\nFormato: JSON"

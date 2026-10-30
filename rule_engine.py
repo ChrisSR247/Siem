@@ -19,27 +19,39 @@ class RuleEngine:
     def analizar(self, evento_normalizado: dict) -> dict:
         fuente = evento_normalizado.get("fuente", "")
         id_regla = str(evento_normalizado.get("id_registro", ""))
-        descripcion = evento_normalizado.get("descripcion", "").lower()
+        
+        # Concatenar campos relevantes para búsqueda heurística
+        textos_busqueda = [
+            evento_normalizado.get("descripcion", ""),
+            evento_normalizado.get("comando", ""),
+            evento_normalizado.get("ruta_archivo", ""),
+            evento_normalizado.get("url", ""),
+            evento_normalizado.get("dominio", ""),
+            evento_normalizado.get("query", ""),
+            evento_normalizado.get("detalles", ""),
+            evento_normalizado.get("raw_log", "")
+        ]
+        texto_completo = " ".join(t for t in textos_busqueda if t).lower()
 
-        regla = self._buscar_regla(id_regla, descripcion, fuente)
+        regla = self._buscar_regla(id_regla, texto_completo, fuente)
 
         resultado = {
-            "ataque": regla.get("ataque", regla.get("_ataque", "Evento Desconocido")),
-            "riesgo": regla.get("riesgo", "MEDIO"),
+            "ataque": regla.get("ataque", regla.get("_ataque", f"Evento {fuente.capitalize()}")),
+            "riesgo": regla.get("riesgo", "BAJO"),
             "mitre": regla.get("mitre", ""),
             "owasp": regla.get("owasp"),
-            "cvss": regla.get("cvss", 5.0),
-            "prioridad": regla.get("prioridad", "Media"),
-            "recomendacion": regla.get("recomendacion", "Investigar manualmente."),
+            "cvss": regla.get("cvss", 1.0),
+            "prioridad": regla.get("prioridad", "Baja"),
+            "recomendacion": regla.get("recomendacion", "Monitorear normalmente."),
         }
 
         es_from_keyword = regla.get("__from_keyword", False)
 
-        # Si la keyword ya definio un riesgo explicito, respetarlo sin override de severidad
+        # Si la keyword ya definió un riesgo explícito, respetarlo
         if es_from_keyword:
             return resultado
 
-        # Ajustar riesgo por nivel critico del evento (solo para defaults, no para keywords explicitas)
+        # Ajustar riesgo por severidad original para Wazuh / Suricata
         niveles_riesgo = {"BAJO": 0, "MEDIO": 1, "ALTO": 2, "CRITICO": 3}
 
         if fuente == "WAZUH":
@@ -68,20 +80,20 @@ class RuleEngine:
 
         return resultado
 
-    def _buscar_regla(self, id_regla: str, descripcion: str, fuente: str) -> dict:
-        # Normalizar fuente: buscar key exacta, luego title-case
-        mapa_fuente = self.attack_map.get(fuente) or self.attack_map.get(fuente.capitalize(), {})
+    def _buscar_regla(self, id_regla: str, texto_completo: str, fuente: str) -> dict:
+        fuente_norm = fuente.capitalize()
+        mapa_fuente = self.attack_map.get(fuente) or self.attack_map.get(fuente_norm, {})
         keywords_map = self.attack_map.get("keywords", {})
 
-        # 1. Buscar por ID exacto en la seccion de la fuente
+        # 1. Buscar por ID exacto en la sección de la fuente
         if id_regla in mapa_fuente:
             return mapa_fuente[id_regla]
 
-        # 2. Buscar por keyword mas larga primero (mas especifica)
+        # 2. Buscar por keyword más larga primero (más específica)
         sorted_kw = sorted(keywords_map.items(), key=lambda x: -len(x[0]))
         best = None
         for kw, info in sorted_kw:
-            if kw in descripcion:
+            if kw in texto_completo:
                 if isinstance(info, dict) and "riesgo" in info:
                     best = dict(info)
                     best["__from_keyword"] = True
@@ -94,6 +106,13 @@ class RuleEngine:
         if best:
             return best
 
-        # 3. Default
-        default_key = "DEFAULT_SURICATA" if "SURICAT" in fuente.upper() else "DEFAULT_WAZUH"
-        return mapa_fuente.get(default_key, {})
+        # 3. Default según la fuente
+        default_key = f"DEFAULT_{fuente.upper()}"
+        return mapa_fuente.get(default_key, {
+            "ataque": f"Evento de {fuente.capitalize()}",
+            "riesgo": "BAJO",
+            "mitre": "",
+            "prioridad": "Baja",
+            "cvss": 0.5,
+            "recomendacion": "Evento no clasificado como amenaza."
+        })
