@@ -1,0 +1,49 @@
+{
+  "incidente_id": "INC-2026-1015-01",
+  "generado": "2026-10-30T02:15:39.103068+00:00",
+  "total_iocs": 7,
+  "iocs": [
+    {
+      "tipo": "URL Maliciosa",
+      "valor": "https://facturas-andinas.example/download/factura_septiembre.zip",
+      "descripcion": "URL de descarga del señuelo de Spear Phishing",
+      "mitre": "T1566.002"
+    },
+    {
+      "tipo": "Dominio Malicioso",
+      "valor": "facturas-andinas.example",
+      "descripcion": "Sitio web trampa de facturación suplantada",
+      "mitre": "T1566.002"
+    },
+    {
+      "tipo": "Archivo Implante",
+      "valor": "C:\\Users\\dtorres\\AppData\\Local\\Temp\\update.ps1",
+      "descripcion": "Script malicioso de PowerShell que opera como implante",
+      "mitre": "T1059.001"
+    },
+    {
+      "tipo": "IP Servidor C2",
+      "valor": "203.0.113.77",
+      "descripcion": "Infraestructura externa C2 del atacante (cdn-sync-services.example)",
+      "mitre": "T1071.001"
+    },
+    {
+      "tipo": "Dominio C2",
+      "valor": "cdn-sync-services.example",
+      "descripcion": "Nombre de dominio utilizado para balizamiento y exfiltración C2",
+      "mitre": "T1071.001"
+    },
+    {
+      "tipo": "Archivo Contenedor",
+      "valor": "C:\\Users\\dtorres\\AppData\\Local\\Temp\\docs_2026.zip",
+      "descripcion": "Archivo comprimido con los 400 documentos financieros (size=191284391)",
+      "mitre": "T1560"
+    },
+    {
+      "tipo": "Directorio de Staging",
+      "valor": "C:\\Users\\dtorres\\AppData\\Local\\Temp\\staging\\",
+      "descripcion": "Carpeta temporal de almacenamiento y preparación de datos antes de compresión",
+      "mitre": "T1074.001"
+    }
+  ]
+}

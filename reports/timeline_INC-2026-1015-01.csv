@@ -1,0 +1,8 @@
+Timestamp,Fase,Fuente,Host,Usuario,Evento,MITRE
+2026-10-15T10:14:09,Fase 1: Acceso Inicial (Spear Phishing),PROXY,FIN-PC07,dtorres,Descarga de archivo señuelo 'https://facturas-andinas.example/download/factura_septiembre.zip',T1566.002
+2026-10-15T10:16:22,Fase 2: Ejecución y Evasión de Defensas,ENDPOINT,FIN-PC07,dtorres,Ejecución de payload oculto con bypass: powershell.exe -NoProfile -WindowStyle Hidden -ExecutionPolicy Bypass -File C:\Users\dtorres\AppData\Local\Temp\update.ps1,T1059.001 / T1564.003
+2026-10-15T10:17:06,Fase 3: Comando y Control (C2),FIREWALL / DNS,FIN-PC07,dtorres,Inicio de balizamiento C2 HTTPS cada 5 minutos hacia 'cdn-sync-services.example' (203.0.113.77:443),T1071.001
+2026-10-15T10:42:03,Fase 4: Reconocimiento Interno (Discovery),ENDPOINT,FIN-PC07,dtorres,"Reconocimiento de usuario, dominio y carpetas compartidas (4 comandos LOLBins ejecutados)",T1033 / T1482 / T1135
+2026-10-15T11:15:04,Fase 5: Recolección y Staging,ENDPOINT,FIN-PC07,dtorres,Lectura masiva de 400 archivos contables desde '\\FS01\Finanzas' hacia directorio temporal,T1039
+2026-10-15T11:41:27,Fase 5: Compresión Local de Datos,ENDPOINT,FIN-PC07,dtorres,Ejecución de tar.exe para compresión en contenedor ZIP (C:\Users\dtorres\AppData\Local\Temp\docs_2026.zip),T1560.001
+2026-10-15T11:46:13,Fase 6: Exfiltración de Datos,FIREWALL / PCAP,FIN-PC07,dtorres,Exfiltración completada de 188.74 MB hacia el C2 (203.0.113.77:443) durante 481s,T1041

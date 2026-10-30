@@ -54,7 +54,7 @@ def _formatear_mensaje(evento_normalizado: dict, resultado_reglas: dict, resulta
         "",
         f"\U0001f6e1 *Recomendacion:* {rec}",
         f"",
-        f"_SIEM Grupo 6 | Wazuh + Suricata + NVIDIA AI + Groq_",
+        f"_SIEM Grupo 6 | AndesCorrelator Engine (ACE)_",
     ]
 
     return "\n".join(msg)
@@ -64,7 +64,7 @@ def enviar_alerta(evento_normalizado: dict, resultado_reglas: dict, resultado_ia
     global _telegram_fallo_red
     if not TELEGRAM_TOKEN:
         if not _telegram_fallo_red:
-            logger.warning("Token Telegram no configurado.")
+            logger.debug("Token Telegram no configurado (alertas desactivadas).")
             _telegram_fallo_red = True
         return False
 

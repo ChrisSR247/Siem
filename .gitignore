@@ -1,18 +1,46 @@
-# Variables de entorno y credenciales
+# ==============================================================================
+# GITIGNORE - ANDESCORRELATOR ENGINE (ACE) SIEM
+# ==============================================================================
+
+# Entorno y variables secretas
 .env
 .env.local
+.env.*.local
 
-# Python
+# Bytecode y caches de Python
 __pycache__/
-*.pyc
-*.pyo
+*.py[cod]
+*$py.class
+*.so
+.pytest_cache/
 
-# Base de datos y logs de sesión
+# Ambientes virtuales
+venv/
+.venv/
+env/
+ENV/
+
+# Bases de datos SQLite generadas dinámicamente en runtime
 *.db
+*.sqlite3
+!database/.gitkeep
+
+# Cursors de ingesta en vivo
 .wazuh_cursor
 .suricata_cursor
 
-# Reportes temporales
-reports/*.json
-reports/*.csv
+# Logs del sistema
+logs/
+*.log
 
+# Archivos comprimidos de respaldo
+*.rar
+*.zip
+
+# Artefactos temporales de compilación LaTeX
+*.aux
+*.out
+*.toc
+*.synctex.gz
+*.fls
+*.fdb_latexmk
